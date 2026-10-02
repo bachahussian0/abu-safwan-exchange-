@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="ur" dir="rtl">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Abu Safwan - Final with Print</title>
+<style>
+:root{--g:#16a34a;--d:#0f172a}body{margin:0;background:var(--d);color:#fff;font-family:system-ui}header{padding:12px;text-align:center;background:#1e293b;position:sticky;top:0;z-index:10}.card{background:#fff;color:#111;border-radius:14px;padding:14px;margin:10px}input,select{width:100%;padding:11px;margin:5px 0;border:1px solid #ccc;border-radius:8px;font-size:15px;box-sizing:border-box}label{font-size:12px;font-weight:bold;color:#475569}.row{display:flex;gap:7px}.row>div{flex:1}button{padding:10px;border:none;border-radius:8px;font-weight:bold;cursor:pointer}.btn-g{background:var(--g);color:#fff;width:100%;font-size:17px;margin-top:8px}.btn-s{background:#e2e8f0;color:#111;margin:3px;font-size:13px}.tbl{width:100%;border-collapse:collapse;font-size:11px}.tbl th,.tbl td{border:1px solid #ddd;padding:5px;text-align:center}
+#lock{position:fixed;inset:0;background:var(--d);z-index:999;display:flex;align-items:center;justify-content:center}.lockbox{background:#fff;padding:20px;border-radius:15px;width:85%;max-width:300px;text-align:center;color:#111}
+@media print{header,.card:first-of-type,#lock,.no-print{display:none!important}body{background:#fff;color:#000}.card{box-shadow:none;margin:0}}
+</style>
+</head>
+<body>
+<div id="lock"><div class="lockbox"><h3>🔒 Abu Safwan</h3><input type="password" id="pw" placeholder="Password"><button class="btn-g" onclick="if(document.getElementById('pw').value==='bacha0968023'){document.getElementById('lock').style.display='none'}else{alert('غلط')}">داخل ہوں</button></div></div>
+
+<header><h1>Abu Safwan Currency Exchange</h1><small>مکمل اختیار والا کھاتہ</small></header>
+
+<div class="card">
+<label>نام لکھیں</label><input id="cname" placeholder="کسٹمر کا نام">
+<div class="row"><div><label>کل ریال / ڈالر</label><input type="number" id="tR" placeholder="100" oninput="sync()"></div><div><label>کرنسی</label><select id="curr"><option>SAR - ریال</option><option>USD - ڈالر</option><option>AED - درہم</option></select></div></div>
+<label>ریٹ</label><input type="number" id="rate" value="70" oninput="sync()">
+
+<div style="background:#fffbeb;border:1px dashed #f59e0b;padding:8px;border-radius:10px;margin:8px 0">
+<div class="row"><div><label>وصول (ریال میں)</label><input type="number" id="wR" placeholder="مثال: 50" oninput="sync()"></div><div><label>بقایا (ریال) - خود</label><input type="number" id="bR" readonly style="background:#fef3c7;font-weight:bold"></div></div>
+</div>
+
+<div style="background:#f0fdf4;border:1px dashed var(--g);padding:8px;border-radius:10px">
+<div class="row"><div><label>کل رقم PKR</label><input type="number" id="tP" readonly></div><div><label>وصول PKR - آپ لکھیں</label><input type="number" id="wP" placeholder="5000" oninput="syncPKR()"></div></div>
+<label>بقایا PKR</label><input type="number" id="bP" readonly style="background:#fee2e2;font-weight:bold">
+</div>
+
+<button class="btn-g" onclick="save()">محفوظ کریں ✅</button>
+</div>
+
+<div class="card">
+<div class="row no-print" style="margin-bottom:8px">
+<button class="btn-s" onclick="window.print()" style="flex:1;background:#0f172a;color:#fff">🖨️ پرنٹ کریں</button>
+<button class="btn-s" onclick="exportExcel()" style="flex:1">📥 Excel</button>
+<input id="search" placeholder="🔍 نام تلاش" oninput="render()" style="flex:2">
+</div>
+
+<div style="overflow:auto">
+<table class="tbl"><thead><tr><th>نام</th><th>کل ریال</th><th>وصول ریال</th><th>بقایا ریال</th><th>ریٹ</th><th>کل PKR</th><th>وصول PKR</th><th>بقایا PKR</th><th class="no-print">✏️</th><th class="no-print">❌</th></tr></thead><tbody id="tbody"></tbody></table>
+</div>
+</div>
+
+<script>
+let data=JSON.parse(localStorage.getItem('abu_final_v4')||'[]');
+let editId=null;
+const cname=document.getElementById('cname'), tR=document.getElementById('tR'), wR=document.getElementById('wR'), bR=document.getElementById('bR'), rate=document.getElementById('rate'), tP=document.getElementById('tP'), wP=document.getElementById('wP'), bP=document.getElementById('bP');
+
+function sync(){
+ let t=parseFloat(tR.value)||0, w=parseFloat(wR.value)||0, r=parseFloat(rate.value)||0;
+ bR.value = t? (t-w) : '';
+ tP.value = t*r || '';
+ // اگر آپ نے PKR وصول خود نہیں لکھا تو خود حساب کرے
+ if(!wP.dataset.manual) wP.value = w*r || '';
+ syncPKR();
+}
+function syncPKR(){
+ let tp=parseFloat(tP.value)||0, wp=parseFloat(wP.value)||0;
+ bP.value = tp? (tp-wp) : '';
+}
+wP.addEventListener('input',()=>{ wP.dataset.manual=1; syncPKR(); });
+tR.addEventListener('input',()=>{ delete wP.dataset.manual; });
+
+function save(){
+ if(!tR.value){alert('کل ریال لکھیں');return}
+ let o={id:editId||Date.now(), name:cname.value||'نامعلوم', curr:document.getElementById('curr').value.split(' ')[0], tR:tR.value, wR:wR.value||0, bR:bR.value||0, rate:rate.value, tP:tP.value, wP:wP.value||0, bP:bP.value||0};
+ if(editId) data=data.map(x=>x.id===editId?o:x); else data.unshift(o);
+ localStorage.setItem('abu_final_v4',JSON.stringify(data));
+ editId=null; cname.value='';tR.value='';wR.value='';bR.value='';tP.value='';wP.value='';bP.value=''; delete wP.dataset.manual; render();
+}
+function render(){
+ let q=document.getElementById('search').value.toLowerCase();
+ let tb=document.getElementById('tbody'); tb.innerHTML='';
+ data.filter(x=>x.name.toLowerCase().includes(q)).forEach(x=>{
+  tb.innerHTML+=`<tr><td>${x.name}</td><td>${x.tR} ${x.curr}</td><td style="background:#dcfce7">${x.wR}</td><td style="background:#fee2e2">${x.bR}</td><td>${x.rate}</td><td>${x.tP}</td><td style="background:#dcfce7">${x.wP}</td><td style="background:#fee2e2"><b>${x.bP}</b></td><td class="no-print"><button onclick="editItem(${x.id})" style="background:#f59e0b;color:#fff">✏️</button></td><td class="no-print"><button onclick="del(${x.id})" style="background:#ef4444;color:#fff">❌</button></td></tr>`;
+ });
+}
+function editItem(id){let x=data.find(a=>a.id===id);editId=id;cname.value=x.name;tR.value=x.tR;wR.value=x.wR;bR.value=x.bR;rate.value=x.rate;tP.value=x.tP;wP.value=x.wP;bP.value=x.bP;window.scrollTo({top:0,behavior:'smooth'});}
+function del(id){if(confirm('ڈیلیٹ کریں؟')){data=data.filter(x=>x.id!==id);localStorage.setItem('abu_final_v4',JSON.stringify(data));render();}}
+function exportExcel(){let csv='Name,Total Riyal,Wasool Riyal,Baqaya Riyal,Rate,Total PKR,Wasool PKR,Baqaya PKR\n'+data.map(x=>`${x.name},${x.tR} ${x.curr},${x.wR},${x.bR},${x.rate},${x.tP},${x.wP},${x.bP}`).join('\n');let a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv]));a.download='AbuSafwan.csv';a.click();}
+render();
+</script>
+</body>
+</html>
