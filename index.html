@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="ur" dir="rtl">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Abu Safwan Exchange - Full Hisaab</title>
+<style>
+:root{--g:#16a34a;--d:#0f172a}body{margin:0;background:var(--d);color:#fff;font-family:system-ui}header{padding:15px;text-align:center;background:#1e293b;position:sticky;top:0}h1{margin:0;font-size:22px}.card{background:#fff;color:#111;border-radius:14px;padding:15px;margin:12px}input,select{width:100%;padding:11px;margin:6px 0;border:1px solid #ccc;border-radius:8px;font-size:16px;box-sizing:border-box}.row{display:flex;gap:8px}.row>div{flex:1}button{padding:12px;border:none;border-radius:10px;font-weight:bold;cursor:pointer}.btn-g{background:var(--g);color:#fff;width:100%;font-size:18px}.btn-s{background:#e2e8f0;color:#111;margin:3px}.tbl{width:100%;border-collapse:collapse;margin-top:10px;font-size:14px}.tbl th,.tbl td{border:1px solid #ddd;padding:6px;text-align:center}.paid{background:#dcfce7}.unpaid{background:#fee2e2}.topbar{display:flex;gap:5px;flex-wrap:wrap;margin:10px 12px}
+#lock{position:fixed;inset:0;background:var(--d);z-index:999;display:flex;align-items:center;justify-content:center}.lockbox{background:#fff;color:#111;padding:25px;border-radius:15px;width:85%;max-width:320px;text-align:center}
+</style>
+</head>
+<body>
+<div id="lock"><div class="lockbox"><h3>🔒 Abu Safwan</h3><p>پاسورڈ لگائیں</p><input type="password" id="pw" placeholder="Password"><button class="btn-g" onclick="unlock()">داخل ہوں</button><p id="err" style="color:red;display:none">غلط پاسورڈ</p></div></div>
+
+<header><h1>Abu Safwan Currency Exchange</h1><small>Peshawar - مکمل کھاتہ</small></header>
+
+<div class="card">
+<h3 style="margin:0 0 10px">➕ نیا اندراج</h3>
+<div class="row"><div><label>کسٹمر نام</label><input id="cname" placeholder="مثلاً احمد"></div><div><label>تاریخ</label><input type="date" id="cdate"></div></div>
+<div class="row"><div><label>کرنسی</label><select id="curr"><option>SAR</option><option>USD</option><option>AED</option><option>QAR</option></select></div><div><label>رقم</label><input type="number" id="amt" oninput="calc()" placeholder="1000"></div></div>
+<div class="row"><div><label>ریٹ</label><input type="number" id="rate" value="76.5" oninput="calc()"></div><div><label>کل PKR</label><input id="total" readonly style="background:#f1f5f9;font-weight:bold"></div></div>
+<label>وصول شدہ رقم (PKR)</label><input type="number" id="paid" placeholder="0" oninput="calc()">
+<div style="background:#f8fafc;padding:8px;border-radius:8px;margin:8px 0;text-align:center">باقی: <b id="baki">0</b> PKR | سٹیٹس: <b id="status">⏳ باقی</b></div>
+<button class="btn-g" onclick="saveEntry()">محفوظ کریں ✅</button>
+</div>
+
+<div class="topbar">
+<input id="search" placeholder="🔍 نام تلاش کریں" oninput="render()" style="flex:2">
+<button class="btn-s" onclick="printTable()">🖨️ پرنٹ</button>
+<button class="btn-s" onclick="exportExcel()">📥 Excel</button>
+<button class="btn-s" onclick="clearAll()" style="background:#ef4444;color:#fff">🗑️ سب ڈیلیٹ</button>
+</div>
+
+<div class="card"><table class="tbl"><thead><tr><th>تاریخ</th><th>نام</th><th>کرنسی</th><th>کل</th><th>وصول</th><th>باقی</th><th>سٹیٹس</th><th>❌</th></tr></thead><tbody id="tbody"></tbody></table></div>
+
+<script>
+let data = JSON.parse(localStorage.getItem('abu_safwan_data')||'[]');
+document.getElementById('cdate').valueAsDate=new Date();
+function unlock(){if(document.getElementById('pw').value==='bacha0968023'){document.getElementById('lock').style.display='none'}else{document.getElementById('err').style.display='block'}}
+function calc(){
+ let a=parseFloat(document.getElementById('amt').value)||0;
+ let r=parseFloat(document.getElementById('rate').value)||0;
+ let tot=a*r;
+ document.getElementById('total').value=tot?tot.toFixed(2):'';
+ let paid=parseFloat(document.getElementById('paid').value)||0;
+ let baki=tot-paid;
+ document.getElementById('baki').innerText=baki.toFixed(2);
+ document.getElementById('status').innerText=baki<=0?'✅ وصول':'⏳ باقی';
+}
+function saveEntry(){
+ let e={id:Date.now(),date:document.getElementById('cdate').value,name:document.getElementById('cname').value||'نامعلوم',curr:document.getElementById('curr').value,amt:document.getElementById('amt').value,rate:document.getElementById('rate').value,total:document.getElementById('total').value,paid:document.getElementById('paid').value||0,baki:document.getElementById('baki').innerText,status:document.getElementById('status').innerText};
+ if(!e.amt||!e.total){alert('رقم لکھیں');return} data.unshift(e); localStorage.setItem('abu_safwan_data',JSON.stringify(data)); render();
+ document.getElementById('cname').value='';document.getElementById('amt').value='';document.getElementById('paid').value='';calc();
+}
+function render(){
+ let q=document.getElementById('search').value.toLowerCase();
+ let tb=document.getElementById('tbody'); tb.innerHTML='';
+ data.filter(x=>x.name.toLowerCase().includes(q)).forEach(x=>{
+  let tr=document.createElement('tr'); tr.className=x.baki<=0?'paid':'unpaid';
+  tr.innerHTML=`<td>${x.date}</td><td>${x.name}</td><td>${x.amt} ${x.curr}</td><td>${x.total}</td><td>${x.paid}</td><td>${x.baki}</td><td>${x.status}</td><td><button onclick="del(${x.id})">❌</button></td>`; tb.appendChild(tr);
+ })
+}
+function del(id){if(confirm('ڈیلیٹ کریں؟')){data=data.filter(x=>x.id!==id);localStorage.setItem('abu_safwan_data',JSON.stringify(data));render();}}
+function clearAll(){if(confirm('سارا ڈیٹا ڈیلیٹ؟')){data=[];localStorage.removeItem('abu_safwan_data');render();}}
+function printTable(){window.print();}
+function exportExcel(){let csv='Date,Name,Currency,Amount,Rate,Total,Paid,Baki,Status\n'+data.map(x=>`${x.date},${x.name},${x.curr},${x.amt},${x.rate},${x.total},${x.paid},${x.baki},${x.status}`).join('\n');let a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv]));a.download='AbuSafwan_Hisaab.csv';a.click();}
+render();
+</script>
+</body>
+</html>
