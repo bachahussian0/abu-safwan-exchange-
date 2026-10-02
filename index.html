@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="ur" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Abu Safwan Exchange - Private</title>
+<style>
+body{font-family: Arial; background: #0f172a; color: white; margin:0; padding:20px; text-align:center;}
+#lockScreen{position:fixed; top:0; left:0; width:100%; height:100%; background:#0f172a; display:flex; align-items:center; justify-content:center; z-index:9999;}
+.lockBox{background:white; color:#0f172a; padding:30px; border-radius:15px; width:90%; max-width:320px;}
+.lockBox input{width:90%; padding:12px; margin:15px 0; border:2px solid #0f172a; border-radius:8px; font-size:18px; text-align:center;}
+.lockBox button{width:100%; padding:12px; background:#0f172a; color:white; border:none; border-radius:8px; font-size:18px;}
+.card{background:white; color:#0f172a; padding:20px; border-radius:15px; margin-top:20px; text-align:left;}
+.card input, .card select{width:95%; padding:10px; margin:8px 0; border-radius:8px; border:1px solid #ccc; font-size:16px;}
+.btn{width:100%; padding:12px; background:#16a34a; color:white; border:none; border-radius:10px; font-size:18px; margin-top:10px;}
+.result{font-size:22px; font-weight:bold; color:#16a34a; margin-top:15px; text-align:center;}
+</style>
+</head>
+<body>
+
+<div id="lockScreen">
+  <div class="lockBox">
+    <h2>🔒 Abu Safwan</h2>
+    <p>پاسورڈ لگائیں</p>
+    <input type="password" id="passInput" placeholder="Password">
+    <button onclick="checkPass()">داخل ہوں</button>
+    <p id="err" style="color:red; display:none;">غلط پاسورڈ</p>
+  </div>
+</div>
+
+<h1>Abu Safwan Currency Exchange</h1>
+<p>Peshawar - Private Hisaab</p>
+
+<div class="card">
+  <label>رقم</label>
+  <input type="number" id="amount" placeholder="مثلاً 1000">
+  
+  <label>کس کرنسی سے؟</label>
+  <select id="from">
+    <option value="SAR">Saudi Riyal (SAR)</option>
+    <option value="USD">Dollar (USD)</option>
+    <option value="AED">Dirham (AED)</option>
+    <option value="PKR">Pak Rupee (PKR)</option>
+  </select>
+  
+  <label>کس کرنسی میں؟</label>
+  <select id="to">
+    <option value="PKR">Pak Rupee (PKR)</option>
+    <option value="SAR">Saudi Riyal (SAR)</option>
+    <option value="USD">Dollar (USD)</option>
+    <option value="AED">Dirham (AED)</option>
+  </select>
+
+  <button class="btn" onclick="calculate()">حساب کریں</button>
+  <div class="result" id="result"></div>
+  
+  <hr>
+  <label>آج کا ریٹ لگائیں</label>
+  <input type="number" id="rate" placeholder="مثلاً SAR = 76.5" value="76.5">
+</div>
+
+<script>
+function checkPass(){
+  var p = document.getElementById('passInput').value;
+  if(p === 'bacha0968023'){
+    document.getElementById('lockScreen').style.display='none';
+  }else{
+    document.getElementById('err').style.display='block';
+  }
+}
+
+function calculate(){
+  var amt = parseFloat(document.getElementById('amount').value);
+  var rate = parseFloat(document.getElementById('rate').value);
+  var from = document.getElementById('from').value;
+  var to = document.getElementById('to').value;
+  var res = document.getElementById('result');
+  
+  if(!amt || !rate){ res.innerHTML='رقم اور ریٹ لکھیں'; return; }
+  
+  if(from === 'SAR' && to === 'PKR'){ res.innerHTML = amt + ' SAR = ' + (amt*rate).toFixed(2) + ' PKR'; }
+  else if(from === 'PKR' && to === 'SAR'){ res.innerHTML = amt + ' PKR = ' + (amt/rate).toFixed(2) + ' SAR'; }
+  else{ res.innerHTML = 'حساب: ' + (amt*rate).toFixed(2); }
+}
+</script>
+</body>
+</html>
