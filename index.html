@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="ur" dir="rtl">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Abu Safwan</title>
+<style>
+body{margin:0;background:#0f172a;color:#fff;font-family:system-ui}header{padding:14px;text-align:center;background:#1e293b}.card{background:#fff;color:#111;border-radius:14px;padding:14px;margin:10px}input,select{width:100%;padding:12px;margin:6px 0;border:1px solid #ccc;border-radius:8px;font-size:16px}label{font-size:13px;font-weight:bold}.row{display:flex;gap:8px}.row>div{flex:1}button{padding:12px;border:none;border-radius:8px;font-weight:bold;cursor:pointer}.btn-g{background:#16a34a;color:#fff;width:100%;font-size:18px;margin-top:10px}.tbl{width:100%;border-collapse:collapse;font-size:12px}.tbl th,.tbl td{border:1px solid #ddd;padding:6px;text-align:center}
+@media print{.no-print{display:none}}
+</style>
+</head>
+<body>
+<header><h1>Abu Safwan Currency Exchange</h1></header>
+
+<div class="card">
+<label>کسٹمر کا نام</label><input id="cname" placeholder="نام">
+<div class="row"><div><label>کل ریال</label><input type="number" id="in_tR" value="100" oninput="updateAll()"></div><div><label>کرنسی</label><select id="curr"><option>SAR</option><option>USD</option><option>AED</option></select></div></div>
+<label>ریٹ</label><input type="number" id="in_rate" value="70" oninput="updateAll()">
+
+<div style="background:#fffbeb;border:1px dashed orange;padding:10px;border-radius:10px;margin:8px 0">
+<div class="row"><div><label>وصول ریال</label><input type="number" id="in_wR" value="50" oninput="updateAll()"></div><div><label>بقایا ریال</label><input type="number" id="in_bR" readonly style="background:#fef3c7;font-weight:bold"></div></div>
+</div>
+
+<div style="background:#f0fdf4;border:1px dashed green;padding:10px;border-radius:10px">
+<div class="row"><div><label>کل PKR (خود)</label><input type="number" id="in_tP" readonly style="background:#e2e8f0;font-weight:bold"></div><div><label>وصول PKR</label><input type="number" id="in_wP" value="5000" oninput="updateAll()"></div></div>
+<label>بقایا PKR</label><input type="number" id="in_bP" readonly style="background:#fecaca;font-weight:bold;color:red">
+</div>
+
+<button class="btn-g" onclick="saveData()">محفوظ کریں ✅</button>
+</div>
+
+<div class="card">
+<div class="row no-print" style="margin-bottom:10px">
+<button onclick="window.print()" style="flex:1;background:#0f172a;color:#fff">🖨️ پرنٹ کریں</button>
+<input id="search" placeholder="🔍 تلاش" oninput="render()" style="flex:2;margin-right:8px">
+</div>
+<div style="overflow:auto"><table class="tbl"><thead><tr><th>نام</th><th>کل ریال</th><th>وصول</th><th>بقایا ریال</th><th>ریٹ</th><th>کل PKR</th><th>وصول PKR</th><th>بقایا PKR</th><th class="no-print">✏️</th><th class="no-print">❌</th></tr></thead><tbody id="tbody"></tbody></table></div>
+</div>
+
+<script>
+let data=JSON.parse(localStorage.getItem('abu_final_v5')||'[]').filter(x=>!x.name.includes('باچا'));
+function updateAll(){
+ let tR = Number(document.getElementById('in_tR').value)||0;
+ let wR = Number(document.getElementById('in_wR').value)||0;
+ let rate = Number(document.getElementById('in_rate').value)||0;
+ let wP = Number(document.getElementById('in_wP').value)||0;
+
+ let bR = tR - wR;
+ document.getElementById('in_bR').value = tR ? bR : '';
+
+ let tP = tR * rate;
+ document.getElementById('in_tP').value = tP ? tP : '';
+
+ let bP = tP - wP;
+ document.getElementById('in_bP').value = tP ? bP : '';
+}
+function saveData(){
+ let tR=document.getElementById('in_tR').value;
+ if(!tR){alert('کل ریال لکھیں');return}
+ let o={id:Date.now(),name:document.getElementById('cname').value||'نامعلوم',curr:document.getElementById('curr').value,tR:tR,wR:document.getElementById('in_wR').value||0,bR:document.getElementById('in_bR').value||0,rate:document.getElementById('in_rate').value,tP:document.getElementById('in_tP').value||0,wP:document.getElementById('in_wP').value||0,bP:document.getElementById('in_bP').value||0};
+ data.unshift(o);
+ localStorage.setItem('abu_final_v5',JSON.stringify(data));
+ render();
+}
+function render(){
+ let q=document.getElementById('search').value.toLowerCase();
+ document.getElementById('tbody').innerHTML=data.filter(x=>x.name.toLowerCase().includes(q)).map(x=>`<tr><td>${x.name}</td><td>${x.tR} ${x.curr}</td><td style="background:#dcfce7">${x.wR}</td><td style="background:#fee2e2">${x.bR}</td><td>${x.rate}</td><td>${x.tP}</td><td style="background:#dcfce7">${x.wP}</td><td style="background:#fecaca"><b>${x.bP}</b></td><td class="no-print"><button onclick="editMe(${x.id})" style="background:#f59e0b;color:#fff">✏️</button></td><td class="no-print"><button onclick="data=data.filter(a=>a.id!==${x.id});localStorage.setItem('abu_final_v5',JSON.stringify(data));render()" style="background:#ef4444;color:#fff">❌</button></td></tr>`).join('');
+}
+function editMe(id){let x=data.find(a=>a.id===id);document.getElementById('cname').value=x.name;document.getElementById('in_tR').value=x.tR;document.getElementById('in_wR').value=x.wR;document.getElementById('in_rate').value=x.rate;document.getElementById('in_wP').value=x.wP;updateAll();data=data.filter(a=>a.id!==id);localStorage.setItem('abu_final_v5',JSON.stringify(data));render();window.scrollTo({top:0,behavior:'smooth'});}
+updateAll();
+render();
+</script>
+</body>
+</html>
