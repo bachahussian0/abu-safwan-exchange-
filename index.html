@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="ur" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ابو صفوان کرنسی چینج</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Tahoma,Arial,sans-serif;background:#eef3f0;color:#17231e}
+header{background:linear-gradient(135deg,#063b2b,#0b6548);color:white;padding:18px;text-align:center;box-shadow:0 3px 12px #0002}
+header h1{margin:0;font-size:27px} header p{margin:5px 0 0;color:#d8eee4}
+.container{max-width:1100px;margin:20px auto;padding:0 14px}
+.card{background:white;border-radius:14px;padding:20px;margin-bottom:18px;box-shadow:0 3px 15px #00000012}
+h2{margin-top:0;color:#07553d}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:13px}
+label{font-weight:bold;display:block;margin-bottom:5px}
+input,select,button{width:100%;padding:12px;border:1px solid #ccd7d1;border-radius:9px;font-size:15px}
+input:focus,select:focus{outline:2px solid #9bcdbb;border-color:#198754}
+button{border:0;background:#0a6849;color:#fff;font-weight:bold;cursor:pointer}
+button:hover{filter:brightness(.95)}
+.btnrow{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:15px}
+.secondary{background:#596b64}.gold{background:#a87912}.danger{background:#b52b2b}.dark{background:#27342f}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.stat{padding:15px;background:#edf7f2;border-radius:10px;text-align:center}.stat b{display:block;font-size:20px;color:#07553d;margin-top:5px}
+.search{margin-bottom:12px}
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;min-width:900px}
+th,td{padding:10px;border-bottom:1px solid #e1e7e3;text-align:center}
+th{background:#07553d;color:white}
+tr:nth-child(even){background:#f7faf8}
+.badge{padding:5px 9px;border-radius:20px;font-weight:bold;display:inline-block}
+.paid{background:#d9f3e5;color:#08633f}.due{background:#ffe2e2;color:#9b2222}.zero{background:#eee;color:#555}
+.smallbtn{width:auto;padding:7px 10px;margin:2px;font-size:13px}
+#login{max-width:420px;margin:70px auto}
+.hidden{display:none}
+.login-logo{font-size:48px;text-align:center}
+.note{font-size:13px;color:#68756f}
+@media(max-width:700px){.grid,.stats{grid-template-columns:1fr}.btnrow{grid-template-columns:1fr 1fr}header h1{font-size:23px}}
+@media print{
+ header,.no-print,#entryCard{display:none!important}
+ body{background:#fff}.container{max-width:none;margin:0}
+ .card{box-shadow:none;border:0}.table-wrap{overflow:visible}
+ table{min-width:0;font-size:10px}
+}
+</style>
+</head>
+<body>
+<header>
+<h1>ابو صفوان کرنسی چینج</h1>
+<p>Currency Exchange Management System</p>
+</header>
+
+<div id="login" class="card">
+<div class="login-logo">💱</div>
+<h2 style="text-align:center">ایڈمن لاگ اِن</h2>
+<label>پاس ورڈ</label>
+<input id="password" type="password" placeholder="پاس ورڈ درج کریں">
+<button style="margin-top:12px" onclick="login()">لاگ اِن</button>
+<p id="loginMsg" style="color:#b52b2b;text-align:center"></p>
+</div>
+
+<main id="app" class="container hidden">
+<section id="entryCard" class="card">
+<h2 id="formTitle">نئی کرنسی انٹری</h2>
+<div class="grid">
+<div><label>کسٹمر نام</label><input id="customer" placeholder="کسٹمر کا نام"></div>
+<div><label>رقم</label><input id="amount" type="number" step="any" placeholder="مثلاً 1000" oninput="calc()"></div>
+<div><label>کرنسی</label>
+<select id="currency">
+<option>USD</option><option>SAR</option><option>AED</option><option>EUR</option><option>GBP</option><option>PKR</option><option>QAR</option><option>OMR</option><option>KWD</option><option>BHD</option><option>Other</option>
+</select></div>
+<div><label>ریٹ</label><input id="rate" type="number" step="any" placeholder="مثلاً 280" oninput="calc()"></div>
+<div><label>کل رقم (PKR)</label><input id="total" type="number" readonly></div>
+<div><label>وصول شدہ</label><input id="received" type="number" step="any" value="0" oninput="calc()"></div>
+<div><label>بقایا</label><input id="due" type="number" readonly></div>
+</div>
+<p class="note">کل رقم = رقم × ریٹ۔ بقایا = کل رقم − وصول شدہ</p>
+<div class="btnrow">
+<button onclick="saveEntry()">💾 محفوظ کریں</button>
+<button class="secondary" onclick="resetForm()">نئی انٹری</button>
+<button class="gold" onclick="window.print()">🖨 پرنٹ</button>
+<button class="dark" onclick="logout()">🔒 لاگ آؤٹ</button>
+</div>
+</section>
+
+<section class="card">
+<h2>تمام ریکارڈ</h2>
+<div class="search">
+<input id="search" placeholder="🔎 کسٹمر نام، کرنسی یا تاریخ سے تلاش کریں..." oninput="render()">
+</div>
+<div class="stats">
+<div class="stat">کل ریکارڈ<b id="count">0</b></div>
+<div class="stat">کل وصول<b id="sumReceived">0 PKR</b></div>
+<div class="stat">کل بقایا<b id="sumDue">0 PKR</b></div>
+</div>
+<br>
+<div class="table-wrap">
+<table>
+<thead><tr><th>#</th><th>تاریخ</th><th>کسٹمر</th><th>رقم</th><th>کرنسی</th><th>ریٹ</th><th>کل رقم</th><th>وصول</th><th>بقایا</th><th class="no-print">کارروائی</th></tr></thead>
+<tbody id="tbody"></tbody>
+</table>
+</div>
+</section>
+</main>
+
+<script>
+const PASS="bacha0968023";
+let records=JSON.parse(localStorage.getItem("abuSafwanCurrencyRecords")||"[]");
+let editId=null;
+
+function login(){
+ if(document.getElementById("password").value===PASS){
+  document.getElementById("login").classList.add("hidden");
+  document.getElementById("app").classList.remove("hidden");
+  render();
+ }else document.getElementById("loginMsg").textContent="پاس ورڈ غلط ہے";
+}
+document.getElementById("password").addEventListener("keydown",e=>{if(e.key==="Enter")login()});
+function logout(){location.reload()}
+
+function num(id){return parseFloat(document.getElementById(id).value)||0}
+function calc(){
+ const total=num("amount")*num("rate");
+ document.getElementById("total").value=total.toFixed(2);
+ document.getElementById("due").value=Math.max(0,total-num("received")).toFixed(2);
+}
+function resetForm(){
+ editId=null;
+ ["customer","amount","rate","total","received","due"].forEach(id=>document.getElementById(id).value="");
+ document.getElementById("received").value=0;
+ document.getElementById("currency").value="USD";
+ document.getElementById("formTitle").textContent="نئی کرنسی انٹری";
+}
+function saveEntry(){
+ const customer=document.getElementById("customer").value.trim();
+ const amount=num("amount"), rate=num("rate"), received=num("received");
+ if(!customer || !amount || !rate){alert("کسٹمر نام، رقم اور ریٹ لازمی ہیں۔");return}
+ const obj={
+  id:editId||Date.now(),
+  date:editId ? (records.find(x=>x.id===editId)?.date||new Date().toLocaleString("en-PK")) : new Date().toLocaleString("en-PK"),
+  customer,amount, currency:document.getElementById("currency").value,
+  rate,total:amount*rate,received,due:Math.max(0,amount*rate-received)
+ };
+ if(editId){records=records.map(x=>x.id===editId?obj:x);alert("ریکارڈ اپڈیٹ ہوگیا۔")}
+ else {records.unshift(obj);alert("ریکارڈ محفوظ ہوگیا۔")}
+ localStorage.setItem("abuSafwanCurrencyRecords",JSON.stringify(records));
+ resetForm();render();
+}
+function editRecord(id){
+ const x=records.find(r=>r.id===id);if(!x)return;
+ editId=id;
+ document.getElementById("customer").value=x.customer;
+ document.getElementById("amount").value=x.amount;
+ document.getElementById("currency").value=x.currency;
+ document.getElementById("rate").value=x.rate;
+ document.getElementById("received").value=x.received;
+ calc();
+ document.getElementById("formTitle").textContent="ریکارڈ اپڈیٹ کریں";
+ window.scrollTo({top:0,behavior:"smooth"});
+}
+function deleteRecord(id){
+ if(confirm("کیا آپ یہ ریکارڈ حذف کرنا چاہتے ہیں؟")){
+  records=records.filter(x=>x.id!==id);
+  localStorage.setItem("abuSafwanCurrencyRecords",JSON.stringify(records));render();
+ }
+}
+function money(n){return Number(n||0).toLocaleString("en-PK",{minimumFractionDigits:2,maximumFractionDigits:2})}
+function render(){
+ const q=document.getElementById("search").value.toLowerCase().trim();
+ const filtered=records.filter(x=>(x.customer+" "+x.currency+" "+x.date).toLowerCase().includes(q));
+ document.getElementById("count").textContent=filtered.length;
+ document.getElementById("sumReceived").textContent=money(filtered.reduce((a,x)=>a+x.received,0))+" PKR";
+ document.getElementById("sumDue").textContent=money(filtered.reduce((a,x)=>a+x.due,0))+" PKR";
+ document.getElementById("tbody").innerHTML=filtered.map((x,i)=>`
+ <tr>
+ <td>${i+1}</td><td>${x.date}</td><td><b>${esc(x.customer)}</b></td>
+ <td>${money(x.amount)}</td><td>${x.currency}</td><td>${money(x.rate)}</td>
+ <td>${money(x.total)} PKR</td><td>${money(x.received)}</td>
+ <td><span class="badge ${x.due>0?'due':'paid'}">${money(x.due)}</span></td>
+ <td class="no-print">
+ <button class="smallbtn gold" onclick="editRecord(${x.id})">اپڈیٹ</button>
+ <button class="smallbtn secondary" onclick="printOne(${x.id})">پرنٹ</button>
+ <button class="smallbtn danger" onclick="deleteRecord(${x.id})">حذف</button>
+ </td></tr>`).join("") || `<tr><td colspan="10">کوئی ریکارڈ موجود نہیں</td></tr>`;
+}
+function esc(s){return String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]))}
+function printOne(id){
+ const x=records.find(r=>r.id===id);if(!x)return;
+ const w=window.open("","_blank");
+ w.document.write(`<html dir="rtl"><head><title>ابو صفوان کرنسی چینج</title><style>body{font-family:Tahoma;text-align:center;padding:30px}table{margin:auto;border-collapse:collapse;width:90%}td{border:1px solid #999;padding:12px}h1{color:#07553d}</style></head><body><h1>ابو صفوان کرنسی چینج</h1><h3>کرنسی لین دین رسید</h3><table>
+ <tr><td>تاریخ</td><td>${x.date}</td></tr><tr><td>کسٹمر</td><td>${esc(x.customer)}</td></tr>
+ <tr><td>رقم</td><td>${money(x.amount)} ${x.currency}</td></tr><tr><td>ریٹ</td><td>${money(x.rate)}</td></tr>
+ <tr><td>کل رقم</td><td>${money(x.total)} PKR</td></tr><tr><td>وصول</td><td>${money(x.received)} PKR</td></tr>
+ <tr><td>بقایا</td><td>${money(x.due)} PKR</td></tr></table><p>شکریہ</p><script>window.print()<\/script></body></html>`);
+ w.document.close();
+}
+</script>
+</body>
+</html>
