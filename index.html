@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="ur" dir="rtl">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Abu Safwan Exchange</title>
+<style>
+:root{--g:#16a34a;--d:#0f172a}body{margin:0;background:var(--d);color:#fff;font-family:system-ui}header{padding:12px;text-align:center;background:#1e293b}.card{background:#fff;color:#111;border-radius:14px;padding:14px;margin:10px}input,select{width:100%;padding:11px;margin:5px 0;border:1px solid #ccc;border-radius:8px;font-size:15px;box-sizing:border-box}label{font-size:12px;font-weight:bold}.row{display:flex;gap:7px}.row>div{flex:1}button{padding:11px;border:none;border-radius:8px;font-weight:bold;cursor:pointer}.btn-g{background:var(--g);color:#fff;width:100%;font-size:17px;margin-top:10px}.btn-dark{background:#0f172a;color:#fff;flex:1}.tbl{width:100%;border-collapse:collapse;font-size:11px}.tbl th,.tbl td{border:1px solid #ddd;padding:6px;text-align:center}
+@media print{.no-print{display:none!important}body{background:#fff;color:#000}}
+</style>
+</head>
+<body>
+<header><h1>Abu Safwan Currency Exchange</h1></header>
+
+<div class="card">
+<label>کسٹمر کا نام</label><input id="cname" placeholder="نام لکھیں">
+<div class="row"><div><label>کل ریال</label><input type="number" id="tR" placeholder="100" oninput="calc()"></div><div><label>کرنسی</label><select id="curr"><option>SAR - ریال</option><option>USD</option><option>AED</option></select></div></div>
+<label>ریٹ</label><input type="number" id="rate" value="70" oninput="calc()">
+
+<div style="background:#fffbeb;border:1px dashed #f59e0b;padding:8px;border-radius:10px;margin:8px 0">
+<div class="row"><div><label>وصول ریال</label><input type="number" id="wR" placeholder="50" oninput="calc()"></div><div><label>بقایا ریال (خود)</label><input type="number" id="bR" readonly style="background:#fef3c7;font-weight:bold"></div></div>
+</div>
+
+<div style="background:#f0fdf4;border:1px dashed var(--g);padding:8px;border-radius:10px">
+<div class="row"><div><label>کل رقم PKR (خود)</label><input type="number" id="tP" readonly style="background:#e2e8f0;font-weight:bold"></div><div><label>وصول PKR</label><input type="number" id="wP" placeholder="5000" oninput="calc2()"></div></div>
+<label>بقایا PKR (خود)</label><input type="number" id="bP" readonly style="background:#fecaca;font-weight:bold">
+</div>
+
+<button class="btn-g" onclick="save()">محفوظ کریں ✅</button>
+</div>
+
+<div class="card">
+<div class="row no-print" style="margin-bottom:10px">
+<button class="btn-dark" onclick="window.print()">🖨️ پرنٹ کریں</button>
+<input id="search" placeholder="🔍 نام تلاش کریں" oninput="render()" style="margin-right:7px">
+</div>
+<div style="overflow:auto">
+<table class="tbl"><thead><tr><th>نام</th><th>کل ریال</th><th>وصول ریال</th><th>بقایا ریال</th><th>ریٹ</th><th>کل PKR</th><th>وصول PKR</th><th>بقایا PKR</th><th class="no-print">✏️</th><th class="no-print">❌</th></tr></thead><tbody id="tbody"></tbody></table>
+</div>
+</div>
+
+<script>
+// پرانا باچا عالم ڈیٹا خودکار ختم
+let data=JSON.parse(localStorage.getItem('abu_final_v4')||'[]');
+data=data.filter(x=>!x.name.includes('باچا'));
+localStorage.setItem('abu_final_v4',JSON.stringify(data));
+let editId=null;
+
+function calc(){
+ let tR=parseFloat(document.getElementById('tR').value)||0;
+ let wR=parseFloat(document.getElementById('wR').value)||0;
+ let rate=parseFloat(document.getElementById('rate').value)||0;
+
+ document.getElementById('bR').value = tR? (tR - wR) : '';
+ document.getElementById('tP').value = (tR && rate)? (tR * rate) : '';
+ calc2();
+}
+function calc2(){
+ let tP=parseFloat(document.getElementById('tP').value)||0;
+ let wP=parseFloat(document.getElementById('wP').value)||0;
+ document.getElementById('bP').value = tP? (tP - wP) : '';
+}
+
+function save(){
+ if(!document.getElementById('tR').value){alert('کل ریال لکھیں');return}
+ let o={
+  id:editId||Date.now(),
+  name:document.getElementById('cname').value||'نامعلوم',
+  curr:document.getElementById('curr').value.split(' ')[0],
+  tR:document.getElementById('tR').value,
+  wR:document.getElementById('wR').value||0,
+  bR:document.getElementById('bR').value||0,
+  rate:document.getElementById('rate').value,
+  tP:document.getElementById('tP').value||0,
+  wP:document.getElementById('wP').value||0,
+  bP:document.getElementById('bP').value||0
+ };
+ if(editId){ data=data.map(x=>x.id===editId?o:x); editId=null; }
+ else data.unshift(o);
+ localStorage.setItem('abu_final_v4',JSON.stringify(data));
+ document.getElementById('cname').value='';document.getElementById('tR').value='';document.getElementById('wR').value='';document.getElementById('bR').value='';document.getElementById('tP').value='';document.getElementById('wP').value='';document.getElementById('bP').value='';
+ render();
+}
+function render(){
+ let q=document.getElementById('search').value.toLowerCase();
+ document.getElementById('tbody').innerHTML=data.filter(x=>x.name.toLowerCase().includes(q)).map(x=>`<tr><td>${x.name}</td><td>${x.tR} ${x.curr}</td><td style="background:#dcfce7">${x.wR}</td><td style="background:#fee2e2">${x.bR}</td><td>${x.rate}</td><td>${x.tP}</td><td style="background:#dcfce7">${x.wP}</td><td style="background:#fecaca"><b>${x.bP}</b></td><td class="no-print"><button onclick="editData(${x.id})" style="background:#f59e0b;color:#fff">✏️</button></td><td class="no-print"><button onclick="if(confirm('ڈیلیٹ؟')){data=data.filter(a=>a.id!==${x.id});localStorage.setItem('abu_final_v4',JSON.stringify(data));render()}" style="background:#ef4444;color:#fff">❌</button></td></tr>`).join('');
+}
+function editData(id){let x=data.find(a=>a.id===id);editId=id;document.getElementById('cname').value=x.name;document.getElementById('tR').value=x.tR;document.getElementById('wR').value=x.wR;document.getElementById('rate').value=x.rate;document.getElementById('wP').value=x.wP;calc();window.scrollTo({top:0,behavior:'smooth'});}
+render();
+</script>
+</body>
+</html>
