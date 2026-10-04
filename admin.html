@@ -1,0 +1,3906 @@
+<!DOCTYPE html>
+<html lang="ur" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ابو صفوان کرنسی ایکسچینج — Admin Dashboard</title>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+:root{
+  --navy:#061b35;
+  --navy2:#0b2d52;
+  --blue:#0878d1;
+  --green:#0ca678;
+  --gold:#f3b51b;
+  --red:#e03131;
+  --orange:#f08c00;
+  --bg:#f3f6fa;
+  --white:#fff;
+  --text:#172033;
+  --muted:#6b7280;
+  --border:#dbe3ec;
+  --shadow:0 8px 25px rgba(0,0,0,.08);
+}
+
+*{
+  box-sizing:border-box;
+}
+
+body{
+  margin:0;
+  font-family:
+    "Noto Nastaliq Urdu",
+    "Noto Sans Arabic",
+    Arial,
+    sans-serif;
+  background:var(--bg);
+  color:var(--text);
+}
+
+button,
+input,
+select{
+  font-family:inherit;
+}
+
+button{
+  cursor:pointer;
+}
+
+.hidden{
+  display:none!important;
+}
+
+/* ================= LOGIN ================= */
+
+#loginPage{
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+  background:
+    radial-gradient(
+      circle at top right,
+      #124d7e 0,
+      #061b35 45%,
+      #03101f 100%
+    );
+}
+
+.loginBox{
+  width:100%;
+  max-width:430px;
+  background:#fff;
+  border-radius:22px;
+  padding:30px;
+  box-shadow:0 20px 60px rgba(0,0,0,.3);
+  text-align:center;
+}
+
+.logo{
+  width:82px;
+  height:82px;
+  margin:0 auto 15px;
+  border-radius:50%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:linear-gradient(
+    135deg,
+    var(--green),
+    var(--navy2)
+  );
+  color:#fff;
+  font-size:34px;
+  border:3px solid var(--gold);
+}
+
+.loginBox h1{
+  margin:5px 0;
+  color:var(--navy);
+  font-size:25px;
+}
+
+.loginBox p{
+  color:var(--muted);
+  margin:5px 0 22px;
+}
+
+.field{
+  text-align:right;
+  margin-bottom:14px;
+}
+
+.field label{
+  display:block;
+  margin-bottom:6px;
+  font-weight:bold;
+}
+
+.field input,
+.field select{
+  width:100%;
+  padding:13px;
+  border:1px solid var(--border);
+  border-radius:10px;
+  outline:none;
+  font-size:15px;
+}
+
+.field input:focus,
+.field select:focus{
+  border-color:var(--blue);
+  box-shadow:
+    0 0 0 3px rgba(8,120,209,.1);
+}
+
+.loginBtn{
+  width:100%;
+  padding:14px;
+  border:0;
+  border-radius:11px;
+  background:linear-gradient(
+    135deg,
+    var(--green),
+    #07865f
+  );
+  color:white;
+  font-weight:bold;
+  font-size:17px;
+}
+
+.loginError{
+  margin-top:12px;
+  color:var(--red);
+  font-weight:bold;
+}
+
+/* ================= DASHBOARD ================= */
+
+#dashboard{
+  min-height:100vh;
+}
+
+.topbar{
+  min-height:70px;
+  background:linear-gradient(
+    135deg,
+    var(--navy),
+    var(--navy2)
+  );
+  color:white;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:10px 22px;
+  position:sticky;
+  top:0;
+  z-index:50;
+  box-shadow:0 4px 15px rgba(0,0,0,.15);
+}
+
+.brand{
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+
+.brandIcon{
+  width:44px;
+  height:44px;
+  border-radius:12px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:var(--green);
+  border:2px solid var(--gold);
+  font-weight:bold;
+}
+
+.brand h2{
+  margin:0;
+  font-size:20px;
+}
+
+.brand small{
+  color:#cbd5e1;
+}
+
+.topActions{
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+
+.topBtn{
+  border:1px solid rgba(255,255,255,.18);
+  background:rgba(255,255,255,.08);
+  color:#fff;
+  padding:9px 13px;
+  border-radius:9px;
+}
+
+.logout{
+  background:var(--red);
+  border-color:var(--red);
+}
+
+/* ================= MAIN ================= */
+
+.main{
+  max-width:1500px;
+  margin:auto;
+  padding:22px;
+}
+
+.pageTitle{
+  margin-bottom:18px;
+}
+
+.pageTitle h1{
+  margin:0;
+  color:var(--navy);
+  font-size:28px;
+}
+
+.pageTitle p{
+  margin:3px 0;
+  color:var(--muted);
+}
+
+/* ================= STATS ================= */
+
+.stats{
+  display:grid;
+  grid-template-columns:repeat(5,1fr);
+  gap:15px;
+  margin-bottom:20px;
+}
+
+.stat{
+  background:white;
+  border-radius:16px;
+  padding:18px;
+  box-shadow:var(--shadow);
+  border-right:5px solid var(--green);
+}
+
+.stat:nth-child(2){
+  border-right-color:var(--blue);
+}
+
+.stat:nth-child(3){
+  border-right-color:var(--gold);
+}
+
+.stat:nth-child(4){
+  border-right-color:var(--orange);
+}
+
+.stat:nth-child(5){
+  border-right-color:#7950f2;
+}
+
+.statLabel{
+  color:var(--muted);
+  font-size:14px;
+}
+
+.statValue{
+  font-size:23px;
+  font-weight:bold;
+  margin-top:5px;
+  color:var(--navy);
+}
+
+/* ================= CARD ================= */
+
+.card{
+  background:#fff;
+  border-radius:17px;
+  box-shadow:var(--shadow);
+  padding:20px;
+  margin-bottom:20px;
+}
+
+.cardTitle{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  margin-bottom:16px;
+}
+
+.cardTitle h2{
+  margin:0;
+  color:var(--navy);
+  font-size:21px;
+}
+
+.cardTitle span{
+  color:var(--muted);
+  font-size:13px;
+}
+
+/* ================= RATE ================= */
+
+.rateBox{
+  display:flex;
+  gap:10px;
+  align-items:end;
+  flex-wrap:wrap;
+}
+
+.rateBox .field{
+  min-width:220px;
+  margin:0;
+}
+
+/* ================= BUTTONS ================= */
+
+.btn{
+  border:0;
+  padding:11px 16px;
+  border-radius:9px;
+  font-weight:bold;
+  color:#fff;
+}
+
+.btnGreen{
+  background:var(--green);
+}
+
+.btnBlue{
+  background:var(--blue);
+}
+
+.btnGold{
+  background:#d99b00;
+}
+
+.btnRed{
+  background:var(--red);
+}
+
+.btnDark{
+  background:var(--navy);
+}
+
+/* ================= PENDING ================= */
+
+.pendingCard{
+  border-top:5px solid var(--gold);
+}
+
+.pendingItem{
+  border:1px solid var(--border);
+  border-radius:13px;
+  padding:15px;
+  margin-bottom:12px;
+  background:#fffdf5;
+}
+
+.pendingGrid{
+  display:grid;
+  grid-template-columns:repeat(5,1fr);
+  gap:10px;
+  align-items:center;
+}
+
+.pendingActions{
+  display:flex;
+  gap:7px;
+  flex-wrap:wrap;
+}
+
+.pendingActions button{
+  border:0;
+  padding:9px 12px;
+  border-radius:8px;
+  font-weight:bold;
+  color:white;
+}
+
+.approve{
+  background:var(--green);
+}
+
+.reject{
+  background:var(--red);
+}
+
+.tracking{
+  display:inline-block;
+  padding:4px 8px;
+  border-radius:6px;
+  background:#e7f5ff;
+  color:#075985;
+  font-weight:bold;
+  direction:ltr;
+}
+
+/* ================= TOOLBAR ================= */
+
+.toolbar{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  align-items:center;
+  margin-bottom:15px;
+}
+
+.search{
+  flex:1;
+  min-width:220px;
+  padding:12px 14px;
+  border:1px solid var(--border);
+  border-radius:10px;
+  outline:none;
+}
+
+.search:focus{
+  border-color:var(--blue);
+}
+
+.statusFilter{
+  min-width:170px;
+  padding:12px;
+  border:1px solid var(--border);
+  border-radius:10px;
+  background:#fff;
+  font-size:15px;
+}
+
+/* ================= TABLE ================= */
+
+.tableWrap{
+  width:100%;
+  overflow-x:auto;
+}
+
+table{
+  width:100%;
+  border-collapse:collapse;
+  min-width:1450px;
+}
+
+th{
+  background:var(--navy);
+  color:white;
+  padding:11px 8px;
+  font-size:14px;
+  white-space:nowrap;
+}
+
+td{
+  padding:10px 8px;
+  border-bottom:1px solid var(--border);
+  text-align:center;
+  white-space:nowrap;
+}
+
+tbody tr:hover{
+  background:#f8fafc;
+}
+
+.receiveInput{
+  width:95px;
+  padding:7px;
+  border:1px solid var(--border);
+  border-radius:7px;
+  text-align:center;
+}
+
+.rowStatus{
+  padding:7px;
+  border:1px solid var(--border);
+  border-radius:7px;
+  background:#fff;
+}
+
+.updateBtn{
+  background:var(--blue);
+  color:#fff;
+  border:0;
+  padding:8px 12px;
+  border-radius:7px;
+  font-weight:bold;
+}
+
+.deleteBtn{
+  background:var(--red);
+  color:#fff;
+  border:0;
+  padding:8px 10px;
+  border-radius:7px;
+}
+
+.receiptBtn{
+  background:#d99b00;
+  color:#fff;
+  border:0;
+  padding:8px 12px;
+  border-radius:7px;
+  font-weight:bold;
+}
+
+.statusBadge{
+  display:inline-block;
+  padding:5px 10px;
+  border-radius:20px;
+  font-size:13px;
+  font-weight:bold;
+}
+
+.status-new{
+  background:#e7f5ff;
+  color:#075985;
+}
+
+.status-accept{
+  background:#e6fcf5;
+  color:#087f5b;
+}
+
+.status-complete{
+  background:#fff3bf;
+  color:#8a6500;
+}
+
+.status-cancel{
+  background:#ffe3e3;
+  color:#c92a2a;
+}
+
+.empty{
+  text-align:center;
+  padding:30px;
+  color:var(--muted);
+}
+
+/* ================= NOTICE ================= */
+
+.notice{
+  padding:12px 15px;
+  border-radius:10px;
+  margin-bottom:15px;
+  display:none;
+}
+
+.notice.success{
+  display:block;
+  background:#e6fcf5;
+  color:#087f5b;
+}
+
+.notice.error{
+  display:block;
+  background:#ffe3e3;
+  color:#c92a2a;
+}
+
+/* ================= MOBILE ================= */
+
+@media(max-width:1000px){
+
+  .stats{
+    grid-template-columns:repeat(2,1fr);
+  }
+
+  .pendingGrid{
+    grid-template-columns:repeat(2,1fr);
+  }
+
+}
+
+@media(max-width:650px){
+
+  .topbar{
+    min-height:65px;
+    padding:10px 12px;
+  }
+
+  .brand h2{
+    font-size:16px;
+  }
+
+  .brand small{
+    font-size:11px;
+  }
+
+  .topBtn{
+    padding:7px 9px;
+    font-size:12px;
+  }
+
+  .main{
+    padding:12px;
+  }
+
+  .pageTitle h1{
+    font-size:22px;
+  }
+
+  .stats{
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+  }
+
+  .stat{
+    padding:13px;
+  }
+
+  .statValue{
+    font-size:18px;
+  }
+
+  .card{
+    padding:13px;
+  }
+
+  .pendingGrid{
+    grid-template-columns:1fr;
+  }
+
+  .rateBox .field{
+    width:100%;
+  }
+
+}
+
+/* ================= PRINT DASHBOARD ================= */
+
+@media print{
+
+  .topbar,
+  .rateBox,
+  .pendingCard,
+  .toolbar,
+  .noPrint,
+  .updateBtn,
+  .deleteBtn,
+  .receiptBtn{
+    display:none!important;
+  }
+
+  body{
+    background:#fff;
+  }
+
+  .main{
+    max-width:none;
+    padding:0;
+  }
+
+  .card{
+    box-shadow:none;
+    border:1px solid #ddd;
+  }
+
+  table{
+    min-width:0;
+  }
+
+}
+</style>
+</head>
+
+<body>
+
+<!-- ======================================================
+     LOGIN
+====================================================== -->
+
+<section id="loginPage">
+
+  <div class="loginBox">
+
+    <div class="logo">
+      AS
+    </div>
+
+    <h1>
+      ابو صفوان کرنسی ایکسچینج
+    </h1>
+
+    <p>
+      Admin Dashboard
+    </p>
+
+    <div class="field">
+
+      <label>
+        ای میل
+      </label>
+
+      <input
+        id="email"
+        type="email"
+        placeholder="Admin Email"
+        autocomplete="username"
+      >
+
+    </div>
+
+    <div class="field">
+
+      <label>
+        پاس ورڈ
+      </label>
+
+      <input
+        id="password"
+        type="password"
+        placeholder="Password"
+        autocomplete="current-password"
+      >
+
+    </div>
+
+    <button
+      class="loginBtn"
+      onclick="login()"
+    >
+      🔐 Admin Login
+    </button>
+
+    <div
+      id="loginError"
+      class="loginError"
+    ></div>
+
+  </div>
+
+</section>
+
+
+<!-- ======================================================
+     DASHBOARD
+====================================================== -->
+
+<section
+  id="dashboard"
+  class="hidden"
+>
+
+<header class="topbar">
+
+  <div class="brand">
+
+    <div class="brandIcon">
+      AS
+    </div>
+
+    <div>
+
+      <h2>
+        ابو صفوان کرنسی ایکسچینج
+      </h2>
+
+      <small>
+        Admin Dashboard
+      </small>
+
+    </div>
+
+  </div>
+
+  <div class="topActions">
+
+    <button
+      class="topBtn"
+      onclick="loadAll()"
+    >
+      🔄 Refresh
+    </button>
+
+    <button
+      class="topBtn"
+      onclick="window.print()"
+    >
+      🖨️ Print
+    </button>
+
+    <button
+      class="topBtn logout"
+      onclick="logout()"
+    >
+      Logout
+    </button>
+
+  </div>
+
+</header>
+
+
+<main class="main">
+
+  <div class="pageTitle">
+
+    <h1>
+      ایڈمن ڈیش بورڈ
+    </h1>
+
+    <p>
+      آرڈرز، ریٹ اور روزانہ حساب کتاب
+    </p>
+
+  </div>
+
+
+  <div
+    id="notice"
+    class="notice"
+  ></div>
+
+
+  <!-- ====================================================
+       STATS
+  ===================================================== -->
+
+  <section class="stats">
+
+    <div class="stat">
+
+      <div class="statLabel">
+        کل آرڈرز
+      </div>
+
+      <div
+        id="totalOrders"
+        class="statValue"
+      >
+        0
+      </div>
+
+    </div>
+
+
+    <div class="stat">
+
+      <div class="statLabel">
+        کل SAR
+      </div>
+
+      <div
+        id="totalSar"
+        class="statValue"
+      >
+        0
+      </div>
+
+    </div>
+
+
+    <div class="stat">
+
+      <div class="statLabel">
+        کل PKR
+      </div>
+
+      <div
+        id="totalPkr"
+        class="statValue"
+      >
+        0
+      </div>
+
+    </div>
+
+
+    <div class="stat">
+
+      <div class="statLabel">
+        PKR وصول شدہ
+      </div>
+
+      <div
+        id="totalReceived"
+        class="statValue"
+      >
+        0
+      </div>
+
+    </div>
+
+
+    <div class="stat">
+
+      <div class="statLabel">
+        PKR بقایا
+      </div>
+
+      <div
+        id="totalDue"
+        class="statValue"
+      >
+        0
+      </div>
+
+    </div>
+
+  </section>
+
+
+  <!-- ====================================================
+       RATE
+  ===================================================== -->
+
+  <section class="card noPrint">
+
+    <div class="cardTitle">
+
+      <h2>
+        💱 موجودہ SAR ریٹ
+      </h2>
+
+      <span>
+        Public website پر بھی یہی ریٹ نظر آئے گا
+      </span>
+
+    </div>
+
+    <div class="rateBox">
+
+      <div class="field">
+
+        <label>
+          SAR → PKR ریٹ
+        </label>
+
+        <input
+          id="rateInput"
+          type="number"
+          step="0.01"
+          min="0"
+          placeholder="75.80"
+        >
+
+      </div>
+
+      <button
+        class="btn btnGreen"
+        onclick="saveRate()"
+      >
+        💾 ریٹ محفوظ کریں
+      </button>
+
+    </div>
+
+  </section>
+
+
+  <!-- ====================================================
+       PENDING
+  ===================================================== -->
+
+  <section
+    class="card pendingCard noPrint"
+  >
+
+    <div class="cardTitle">
+
+      <h2>
+        ⏳ زیرِ اجازت آرڈرز
+      </h2>
+
+      <span id="pendingCount">
+        0
+      </span>
+
+    </div>
+
+    <div id="pendingList"></div>
+
+  </section>
+
+
+  <!-- ====================================================
+       ALL ORDERS
+  ===================================================== -->
+
+  <section class="card">
+
+    <div class="cardTitle">
+
+      <h2>
+        📋 تمام آرڈرز
+      </h2>
+
+      <span>
+        تمام Status یہاں دکھائے جائیں گے
+      </span>
+
+    </div>
+
+
+    <div class="toolbar noPrint">
+
+      <input
+        id="orderSearch"
+        class="search"
+        type="search"
+        placeholder="نام، وصول کنندہ یا Tracking نمبر تلاش کریں..."
+        oninput="renderOrders()"
+      >
+
+
+      <select
+        id="statusFilter"
+        class="statusFilter"
+        onchange="renderOrders()"
+      >
+
+        <option value="">
+          تمام Status
+        </option>
+
+        <option value="نیا">
+          نیا
+        </option>
+
+        <option value="قبول">
+          قبول
+        </option>
+
+        <option value="مکمل">
+          مکمل
+        </option>
+
+        <option value="منسوخ">
+          منسوخ
+        </option>
+
+      </select>
+
+
+      <button
+        class="btn btnBlue"
+        onclick="exportCSV()"
+      >
+        📊 Excel / CSV
+      </button>
+
+
+      <button
+        class="btn btnDark"
+        onclick="window.print()"
+      >
+        🖨️ Print
+      </button>
+
+
+      <button
+        class="btn btnRed"
+        onclick="deleteAllOrders()"
+      >
+        🗑️ تمام Delete
+      </button>
+
+    </div>
+
+
+    <div class="tableWrap">
+
+      <table>
+
+        <thead>
+
+          <tr>
+
+            <th>
+              #
+            </th>
+
+            <th>
+              Tracking
+            </th>
+
+            <th>
+              نام
+            </th>
+
+            <th>
+              وصول کنندہ
+            </th>
+
+            <th>
+              SAR
+            </th>
+
+            <th>
+              Rate
+            </th>
+
+            <th>
+              کل PKR
+            </th>
+
+            <th>
+              SAR وصول
+            </th>
+
+            <th>
+              PKR وصول
+            </th>
+
+            <th>
+              بقایا PKR
+            </th>
+
+            <th>
+              Status
+            </th>
+
+            <th>
+              تاریخ
+            </th>
+
+            <th class="noPrint">
+              رسید
+            </th>
+
+            <th class="noPrint">
+              اپڈیٹ
+            </th>
+
+            <th class="noPrint">
+              Delete
+            </th>
+
+          </tr>
+
+        </thead>
+
+        <tbody id="ordersBody"></tbody>
+
+      </table>
+
+    </div>
+
+  </section>
+
+</main>
+
+</section>
+
+
+<script>
+
+/* ======================================================
+   SUPABASE
+====================================================== */
+
+const SUPABASE_URL =
+  "https://bvypnhintuiejqpkpjox.supabase.co";
+
+const SUPABASE_KEY =
+  "sb_publishable_T_rZSYLkDynbSXi1JflY0Q_IPFcyfZa";
+
+const supabaseClient =
+  window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_KEY
+  );
+
+
+/* ======================================================
+   ADMIN UUID
+====================================================== */
+
+const ADMIN_UUID =
+  "7d728678-f2b5-49e7-acf0-9719e989ddfe";
+
+
+/* ======================================================
+   DATA
+====================================================== */
+
+let orders = [];
+let pendingOrders = [];
+
+
+/* ======================================================
+   PAGE START
+====================================================== */
+
+document.addEventListener(
+  "DOMContentLoaded",
+  async () => {
+
+    const {
+      data:{
+        session
+      }
+    } =
+      await supabaseClient
+        .auth
+        .getSession();
+
+
+    if(session){
+
+      const ok =
+        await checkAdmin(
+          session.user.id
+        );
+
+
+      if(ok){
+
+        showDashboard();
+
+        await loadAll();
+
+      }else{
+
+        await supabaseClient
+          .auth
+          .signOut();
+
+      }
+
+    }
+
+  }
+);
+
+
+/* ======================================================
+   LOGIN
+====================================================== */
+
+async function login(){
+
+  const email =
+    document
+      .getElementById("email")
+      .value
+      .trim();
+
+  const password =
+    document
+      .getElementById("password")
+      .value;
+
+  const errorBox =
+    document
+      .getElementById("loginError");
+
+
+  errorBox.textContent = "";
+
+
+  if(!email || !password){
+
+    errorBox.textContent =
+      "ای میل اور پاس ورڈ درج کریں۔";
+
+    return;
+  }
+
+
+  try{
+
+    const {
+      data,
+      error
+    } =
+      await supabaseClient
+        .auth
+        .signInWithPassword({
+          email,
+          password
+        });
+
+
+    if(error)
+      throw error;
+
+
+    const ok =
+      await checkAdmin(
+        data.user.id
+      );
+
+
+    if(!ok){
+
+      await supabaseClient
+        .auth
+        .signOut();
+
+      throw new Error(
+        "یہ اکاؤنٹ Admin نہیں ہے۔"
+      );
+
+    }
+
+
+    showDashboard();
+
+    await loadAll();
+
+
+  }catch(error){
+
+    console.error(error);
+
+    errorBox.textContent =
+      error.message ||
+      "Login میں مسئلہ ہے۔";
+
+  }
+
+}
+
+
+/* ======================================================
+   ADMIN CHECK
+====================================================== */
+
+async function checkAdmin(userId){
+
+  if(!userId)
+    return false;
+
+
+  try{
+
+    const {
+      data,
+      error
+    } =
+      await supabaseClient
+        .from("admin_users")
+        .select("user_id")
+        .eq(
+          "user_id",
+          userId
+        )
+        .maybeSingle();
+
+
+    if(error){
+
+      console.error(
+        "Admin check:",
+        error
+      );
+
+      return false;
+    }
+
+
+    return !!data;
+
+
+  }catch(error){
+
+    console.error(error);
+
+    return false;
+
+  }
+
+}
+
+
+/* ======================================================
+   SHOW DASHBOARD
+====================================================== */
+
+function showDashboard(){
+
+  document
+    .getElementById("loginPage")
+    .classList
+    .add("hidden");
+
+
+  document
+    .getElementById("dashboard")
+    .classList
+    .remove("hidden");
+
+}
+
+
+/* ======================================================
+   LOGOUT
+====================================================== */
+
+async function logout(){
+
+  await supabaseClient
+    .auth
+    .signOut();
+
+  location.reload();
+
+}
+
+
+/* ======================================================
+   NOTICE
+====================================================== */
+
+function showNotice(
+  message,
+  type="success"
+){
+
+  const box =
+    document
+      .getElementById("notice");
+
+
+  box.textContent =
+    message;
+
+
+  box.className =
+    "notice " + type;
+
+
+  setTimeout(
+    () => {
+
+      box.className =
+        "notice";
+
+    },
+    4000
+  );
+
+}
+
+
+/* ======================================================
+   LOAD ALL
+====================================================== */
+
+async function loadAll(){
+
+  await Promise.all([
+    loadRate(),
+    loadPending(),
+    loadOrders()
+  ]);
+
+}
+
+
+/* ======================================================
+   LOAD RATE
+====================================================== */
+
+async function loadRate(){
+
+  try{
+
+    const {
+      data,
+      error
+    } =
+      await supabaseClient
+        .from("settings")
+        .select("rate")
+        .limit(1)
+        .maybeSingle();
+
+
+    if(error)
+      throw error;
+
+
+    if(data){
+
+      document
+        .getElementById("rateInput")
+        .value =
+        Number(
+          data.rate
+        ).toFixed(2);
+
+    }
+
+  }catch(error){
+
+    console.error(
+      "Rate error:",
+      error
+    );
+
+  }
+
+}
+
+
+/* ======================================================
+   SAVE RATE
+====================================================== */
+
+async function saveRate(){
+
+  const value =
+    Number(
+      document
+        .getElementById("rateInput")
+        .value
+    );
+
+
+  if(!value || value <= 0){
+
+    alert(
+      "صحیح SAR ریٹ درج کریں۔"
+    );
+
+    return;
+  }
+
+
+  try{
+
+    const {
+      data:rows,
+      error:readError
+    } =
+      await supabaseClient
+        .from("settings")
+        .select("id")
+        .limit(1);
+
+
+    if(readError)
+      throw readError;
+
+
+    let error;
+
+
+    if(
+      rows &&
+      rows.length
+    ){
+
+      const result =
+        await supabaseClient
+          .from("settings")
+          .update({
+            rate:value,
+            updated_at:
+              new Date()
+                .toISOString()
+          })
+          .eq(
+            "id",
+            rows[0].id
+          );
+
+
+      error =
+        result.error;
+
+
+    }else{
+
+      const result =
+        await supabaseClient
+          .from("settings")
+          .insert({
+            rate:value
+          });
+
+
+      error =
+        result.error;
+
+    }
+
+
+    if(error)
+      throw error;
+
+
+    showNotice(
+      "SAR ریٹ کامیابی سے محفوظ ہوگیا۔"
+    );
+
+
+  }catch(error){
+
+    console.error(error);
+
+    showNotice(
+      "ریٹ محفوظ نہیں ہوا: " +
+      error.message,
+      "error"
+    );
+
+  }
+
+}
+
+
+/* ======================================================
+   LOAD PENDING
+====================================================== */
+
+async function loadPending(){
+
+  try{
+
+    const {
+      data,
+      error
+    } =
+      await supabaseClient
+        .from("pending_orders")
+        .select("*")
+        .order(
+          "created_at",
+          {
+            ascending:false
+          }
+        );
+
+
+    if(error)
+      throw error;
+
+
+    pendingOrders =
+      data || [];
+
+
+    renderPending();
+
+
+  }catch(error){
+
+    console.error(
+      "Pending error:",
+      error
+    );
+
+
+    document
+      .getElementById("pendingList")
+      .innerHTML =
+      `
+      <div class="empty">
+        Pending Orders لوڈ نہیں ہوئے۔
+        <br>
+        ${escapeHtml(
+          error.message
+        )}
+      </div>
+      `;
+
+  }
+
+}
+
+
+/* ======================================================
+   RENDER PENDING
+====================================================== */
+
+function renderPending(){
+
+  const box =
+    document
+      .getElementById(
+        "pendingList"
+      );
+
+
+  document
+    .getElementById(
+      "pendingCount"
+    )
+    .textContent =
+    pendingOrders.length;
+
+
+  if(!pendingOrders.length){
+
+    box.innerHTML =
+      `
+      <div class="empty">
+        اس وقت کوئی زیرِ اجازت آرڈر نہیں۔
+      </div>
+      `;
+
+    return;
+  }
+
+
+  box.innerHTML =
+    pendingOrders
+      .map(
+        order => {
+
+          const pkr =
+            Number(
+              order.pkr || 0
+            );
+
+
+          return `
+          <div class="pendingItem">
+
+            <div class="pendingGrid">
+
+              <div>
+                <strong>نام:</strong><br>
+                ${escapeHtml(
+                  order.name
+                )}
+              </div>
+
+              <div>
+                <strong>وصول کنندہ:</strong><br>
+                ${escapeHtml(
+                  order.receiver
+                )}
+              </div>
+
+              <div>
+                <strong>SAR:</strong><br>
+                ${formatNumber(
+                  order.sar
+                )}
+              </div>
+
+              <div>
+                <strong>PKR:</strong><br>
+                ${formatNumber(
+                  pkr
+                )}
+              </div>
+
+              <div>
+                <strong>Tracking:</strong><br>
+                <span class="tracking">
+                  ${escapeHtml(
+                    order.tracking_number || "-"
+                  )}
+                </span>
+              </div>
+
+            </div>
+
+            <hr>
+
+            <div class="pendingActions">
+
+              <button
+                class="approve"
+                onclick="approveOrder(${Number(order.id)})"
+              >
+                ✅ قبول کریں
+              </button>
+
+              <button
+                class="reject"
+                onclick="rejectOrder(${Number(order.id)})"
+              >
+                ❌ منسوخ کریں
+              </button>
+
+            </div>
+
+          </div>
+          `;
+
+        }
+      )
+      .join("");
+
+}
+
+
+/* ======================================================
+   APPROVE
+====================================================== */
+
+async function approveOrder(id){
+
+  const order =
+    pendingOrders.find(
+      x =>
+        Number(x.id) ===
+        Number(id)
+    );
+
+
+  if(!order){
+
+    alert(
+      "یہ Pending Order نہیں ملا۔"
+    );
+
+    return;
+  }
+
+
+  const yes =
+    confirm(
+      `کیا آپ یہ آرڈر قبول کرنا چاہتے ہیں؟
+
+نام: ${order.name}
+SAR: ${order.sar}
+Tracking: ${
+        order.tracking_number || "-"
+      }`
+    );
+
+
+  if(!yes)
+    return;
+
+
+  try{
+
+    const insertData = {
+
+      name:
+        order.name,
+
+      receiver:
+        order.receiver,
+
+      sar:
+        Number(order.sar),
+
+      rate:
+        Number(order.rate),
+
+      tracking_number:
+        order.tracking_number,
+
+      sar_received:
+        0,
+
+      pkr_received:
+        0,
+
+      status:
+        "قبول"
+
+    };
+
+
+    const {
+      data:inserted,
+      error:insertError
+    } =
+      await supabaseClient
+        .from("orders")
+        .insert(
+          insertData
+        )
+        .select()
+        .single();
+
+
+    if(insertError)
+      throw insertError;
+
+
+    const {
+      error:deleteError
+    } =
+      await supabaseClient
+        .from("pending_orders")
+        .delete()
+        .eq(
+          "id",
+          id
+        );
+
+
+    if(deleteError){
+
+      console.error(
+        "Pending delete:",
+        deleteError
+      );
+
+
+      showNotice(
+        "آرڈر Orders میں شامل ہوگیا، لیکن Pending سے حذف نہیں ہوا۔",
+        "error"
+      );
+
+    }else{
+
+      showNotice(
+        "آرڈر کامیابی سے قبول ہوگیا اور تمام Orders میں شامل ہوگیا۔"
+      );
+
+    }
+
+
+    await loadPending();
+
+    await loadOrders();
+
+
+    const filter =
+      document
+        .getElementById(
+          "statusFilter"
+        );
+
+
+    if(filter)
+      filter.value = "";
+
+
+    renderOrders();
+
+
+  }catch(error){
+
+    console.error(
+      "Approve Error:",
+      error
+    );
+
+
+    alert(
+      "آرڈر قبول نہیں ہوا:\n\n" +
+      error.message
+    );
+
+  }
+
+}
+
+
+/* ======================================================
+   REJECT
+====================================================== */
+
+async function rejectOrder(id){
+
+  const yes =
+    confirm(
+      "کیا آپ اس Pending Order کو حذف کرنا چاہتے ہیں؟"
+    );
+
+
+  if(!yes)
+    return;
+
+
+  try{
+
+    const {
+      error
+    } =
+      await supabaseClient
+        .from("pending_orders")
+        .delete()
+        .eq(
+          "id",
+          id
+        );
+
+
+    if(error)
+      throw error;
+
+
+    showNotice(
+      "Pending Order حذف ہوگیا۔"
+    );
+
+
+    await loadPending();
+
+
+  }catch(error){
+
+    alert(
+      "Delete نہیں ہوا:\n\n" +
+      error.message
+    );
+
+  }
+
+}
+
+
+/* ======================================================
+   LOAD ORDERS
+====================================================== */
+
+async function loadOrders(){
+
+  try{
+
+    const {
+      data,
+      error
+    } =
+      await supabaseClient
+        .from("orders")
+        .select("*")
+        .order(
+          "created_at",
+          {
+            ascending:false
+          }
+        );
+
+
+    if(error)
+      throw error;
+
+
+    orders =
+      data || [];
+
+
+    updateStats();
+
+    renderOrders();
+
+
+  }catch(error){
+
+    console.error(
+      "Orders error:",
+      error
+    );
+
+
+    document
+      .getElementById(
+        "ordersBody"
+      )
+      .innerHTML =
+      `
+      <tr>
+
+        <td
+          colspan="15"
+          class="empty"
+        >
+
+          Orders لوڈ نہیں ہوئے۔
+
+          <br>
+
+          ${escapeHtml(
+            error.message
+          )}
+
+        </td>
+
+      </tr>
+      `;
+
+  }
+
+}
+
+
+/* ======================================================
+   RENDER ORDERS
+====================================================== */
+
+function renderOrders(){
+
+  const body =
+    document
+      .getElementById(
+        "ordersBody"
+      );
+
+
+  const search =
+    document
+      .getElementById(
+        "orderSearch"
+      )
+      .value
+      .trim()
+      .toLowerCase();
+
+
+  const status =
+    document
+      .getElementById(
+        "statusFilter"
+      )
+      .value
+      .trim();
+
+
+  const filtered =
+    orders.filter(
+      order => {
+
+        const name =
+          String(
+            order.name || ""
+          )
+          .toLowerCase();
+
+
+        const receiver =
+          String(
+            order.receiver || ""
+          )
+          .toLowerCase();
+
+
+        const tracking =
+          String(
+            order.tracking_number || ""
+          )
+          .toLowerCase();
+
+
+        const orderStatus =
+          String(
+            order.status || ""
+          )
+          .trim();
+
+
+        const matchSearch =
+          !search ||
+          name.includes(search) ||
+          receiver.includes(search) ||
+          tracking.includes(search);
+
+
+        const matchStatus =
+          !status ||
+          orderStatus === status;
+
+
+        return (
+          matchSearch &&
+          matchStatus
+        );
+
+      }
+    );
+
+
+  if(!filtered.length){
+
+    body.innerHTML =
+      `
+      <tr>
+
+        <td
+          colspan="15"
+          class="empty"
+        >
+          اس Status کے مطابق کوئی آرڈر نہیں ملا۔
+        </td>
+
+      </tr>
+      `;
+
+    return;
+  }
+
+
+  body.innerHTML =
+    filtered
+      .map(
+        (order,index) => {
+
+          const sar =
+            Number(
+              order.sar || 0
+            );
+
+
+          const rate =
+            Number(
+              order.rate || 0
+            );
+
+
+          const pkr =
+            Number(
+              order.pkr ||
+              sar * rate
+            );
+
+
+          const sarReceived =
+            Number(
+              order.sar_received || 0
+            );
+
+
+          const pkrReceived =
+            Number(
+              order.pkr_received || 0
+            );
+
+
+          const due =
+            Math.max(
+              0,
+              pkr - pkrReceived
+            );
+
+
+          const orderStatus =
+            String(
+              order.status ||
+              "نیا"
+            )
+            .trim();
+
+
+          const statusClass =
+            orderStatus === "قبول"
+              ? "status-accept"
+              : orderStatus === "مکمل"
+              ? "status-complete"
+              : orderStatus === "منسوخ"
+              ? "status-cancel"
+              : "status-new";
+
+
+          return `
+
+          <tr>
+
+            <td>
+              ${index + 1}
+            </td>
+
+
+            <td>
+
+              <span class="tracking">
+
+                ${escapeHtml(
+                  order.tracking_number ||
+                  "-"
+                )}
+
+              </span>
+
+            </td>
+
+
+            <td>
+              ${escapeHtml(
+                order.name ||
+                "-"
+              )}
+            </td>
+
+
+            <td>
+              ${escapeHtml(
+                order.receiver ||
+                "-"
+              )}
+            </td>
+
+
+            <td>
+              ${formatNumber(
+                sar
+              )}
+            </td>
+
+
+            <td>
+              ${formatNumber(
+                rate
+              )}
+            </td>
+
+
+            <td>
+              ${formatNumber(
+                pkr
+              )}
+            </td>
+
+
+            <td>
+
+              <input
+                class="receiveInput"
+                id="sar-${order.id}"
+                type="number"
+                min="0"
+                step="0.01"
+                value="${sarReceived}"
+              >
+
+            </td>
+
+
+            <td>
+
+              <input
+                class="receiveInput"
+                id="pkr-${order.id}"
+                type="number"
+                min="0"
+                step="0.01"
+                value="${pkrReceived}"
+              >
+
+            </td>
+
+
+            <td>
+              ${formatNumber(
+                due
+              )}
+            </td>
+
+
+            <td>
+
+              <select
+                class="rowStatus"
+                id="status-${order.id}"
+              >
+
+                <option
+                  value="نیا"
+                  ${
+                    orderStatus === "نیا"
+                    ? "selected"
+                    : ""
+                  }
+                >
+                  نیا
+                </option>
+
+
+                <option
+                  value="قبول"
+                  ${
+                    orderStatus === "قبول"
+                    ? "selected"
+                    : ""
+                  }
+                >
+                  قبول
+                </option>
+
+
+                <option
+                  value="مکمل"
+                  ${
+                    orderStatus === "مکمل"
+                    ? "selected"
+                    : ""
+                  }
+                >
+                  مکمل
+                </option>
+
+
+                <option
+                  value="منسوخ"
+                  ${
+                    orderStatus === "منسوخ"
+                    ? "selected"
+                    : ""
+                  }
+                >
+                  منسوخ
+                </option>
+
+              </select>
+
+              <br>
+
+              <span
+                class="statusBadge ${statusClass}"
+              >
+                ${escapeHtml(
+                  orderStatus
+                )}
+              </span>
+
+            </td>
+
+
+            <td>
+              ${formatDate(
+                order.created_at
+              )}
+            </td>
+
+
+            <!-- RECEIPT -->
+
+            <td class="noPrint">
+
+              <button
+                class="receiptBtn"
+                onclick="printReceipt(${Number(order.id)})"
+              >
+                🧾 رسید
+              </button>
+
+            </td>
+
+
+            <!-- UPDATE -->
+
+            <td class="noPrint">
+
+              <button
+                class="updateBtn"
+                onclick="updateOrder(${Number(order.id)})"
+              >
+                💾 اپڈیٹ
+              </button>
+
+            </td>
+
+
+            <!-- DELETE -->
+
+            <td class="noPrint">
+
+              <button
+                class="deleteBtn"
+                onclick="deleteOrder(${Number(order.id)})"
+              >
+                🗑️
+              </button>
+
+            </td>
+
+          </tr>
+
+          `;
+
+        }
+      )
+      .join("");
+
+}
+
+
+/* ======================================================
+   UPDATE ORDER
+====================================================== */
+
+async function updateOrder(id){
+
+  const sarReceived =
+    Number(
+      document
+        .getElementById(
+          `sar-${id}`
+        )
+        .value
+    );
+
+
+  const pkrReceived =
+    Number(
+      document
+        .getElementById(
+          `pkr-${id}`
+        )
+        .value
+    );
+
+
+  const status =
+    document
+      .getElementById(
+        `status-${id}`
+      )
+      .value;
+
+
+  if(
+    sarReceived < 0 ||
+    pkrReceived < 0
+  ){
+
+    alert(
+      "Received رقم منفی نہیں ہوسکتا۔"
+    );
+
+    return;
+  }
+
+
+  try{
+
+    const {
+      error
+    } =
+      await supabaseClient
+        .from("orders")
+        .update({
+
+          sar_received:
+            sarReceived,
+
+          pkr_received:
+            pkrReceived,
+
+          status:
+            status
+
+        })
+        .eq(
+          "id",
+          id
+        );
+
+
+    if(error)
+      throw error;
+
+
+    showNotice(
+      "آرڈر کامیابی سے اپڈیٹ ہوگیا۔"
+    );
+
+
+    await loadOrders();
+
+
+  }catch(error){
+
+    console.error(error);
+
+
+    alert(
+      "اپڈیٹ نہیں ہوا:\n\n" +
+      error.message
+    );
+
+  }
+
+}
+
+
+/* ======================================================
+   DELETE ORDER
+====================================================== */
+
+async function deleteOrder(id){
+
+  const yes =
+    confirm(
+      "کیا آپ یہ آرڈر مستقل طور پر Delete کرنا چاہتے ہیں؟"
+    );
+
+
+  if(!yes)
+    return;
+
+
+  try{
+
+    const {
+      error
+    } =
+      await supabaseClient
+        .from("orders")
+        .delete()
+        .eq(
+          "id",
+          id
+        );
+
+
+    if(error)
+      throw error;
+
+
+    showNotice(
+      "آرڈر Delete ہوگیا۔"
+    );
+
+
+    await loadOrders();
+
+
+  }catch(error){
+
+    alert(
+      "Delete نہیں ہوا:\n\n" +
+      error.message
+    );
+
+  }
+
+}
+
+
+/* ======================================================
+   DELETE ALL
+====================================================== */
+
+async function deleteAllOrders(){
+
+  if(!orders.length){
+
+    alert(
+      "Delete کرنے کے لیے کوئی Order نہیں۔"
+    );
+
+    return;
+  }
+
+
+  const yes =
+    confirm(
+      "⚠️ کیا آپ تمام Orders مستقل طور پر Delete کرنا چاہتے ہیں؟\n\nیہ عمل واپس نہیں ہوگا۔"
+    );
+
+
+  if(!yes)
+    return;
+
+
+  try{
+
+    const {
+      error
+    } =
+      await supabaseClient
+        .from("orders")
+        .delete()
+        .gt(
+          "id",
+          0
+        );
+
+
+    if(error)
+      throw error;
+
+
+    showNotice(
+      "تمام Orders Delete ہوگئے۔"
+    );
+
+
+    await loadOrders();
+
+
+  }catch(error){
+
+    alert(
+      "تمام Orders Delete نہیں ہوئے:\n\n" +
+      error.message
+    );
+
+  }
+
+}
+
+
+/* ======================================================
+   STATS
+====================================================== */
+
+function updateStats(){
+
+  let totalSar = 0;
+  let totalPkr = 0;
+  let totalReceived = 0;
+  let totalDue = 0;
+
+
+  orders.forEach(
+    order => {
+
+      if(
+        String(
+          order.status || ""
+        ).trim() === "منسوخ"
+      ){
+
+        return;
+
+      }
+
+
+      const sar =
+        Number(
+          order.sar || 0
+        );
+
+
+      const rate =
+        Number(
+          order.rate || 0
+        );
+
+
+      const pkr =
+        Number(
+          order.pkr ||
+          sar * rate
+        );
+
+
+      const received =
+        Number(
+          order.pkr_received || 0
+        );
+
+
+      totalSar += sar;
+
+      totalPkr += pkr;
+
+      totalReceived +=
+        received;
+
+      totalDue +=
+        Math.max(
+          0,
+          pkr - received
+        );
+
+    }
+  );
+
+
+  document
+    .getElementById(
+      "totalOrders"
+    )
+    .textContent =
+    orders.length;
+
+
+  document
+    .getElementById(
+      "totalSar"
+    )
+    .textContent =
+    formatNumber(
+      totalSar
+    );
+
+
+  document
+    .getElementById(
+      "totalPkr"
+    )
+    .textContent =
+    formatNumber(
+      totalPkr
+    );
+
+
+  document
+    .getElementById(
+      "totalReceived"
+    )
+    .textContent =
+    formatNumber(
+      totalReceived
+    );
+
+
+  document
+    .getElementById(
+      "totalDue"
+    )
+    .textContent =
+    formatNumber(
+      totalDue
+    );
+
+}
+
+
+/* ======================================================
+   CSV
+====================================================== */
+
+function exportCSV(){
+
+  if(!orders.length){
+
+    alert(
+      "Export کرنے کے لیے کوئی Orders نہیں۔"
+    );
+
+    return;
+  }
+
+
+  const rows = [
+
+    [
+      "#",
+      "Tracking",
+      "Name",
+      "Receiver",
+      "SAR",
+      "Rate",
+      "PKR",
+      "SAR Received",
+      "PKR Received",
+      "Due PKR",
+      "Status",
+      "Created"
+    ]
+
+  ];
+
+
+  orders.forEach(
+    (order,index) => {
+
+      const sar =
+        Number(
+          order.sar || 0
+        );
+
+
+      const rate =
+        Number(
+          order.rate || 0
+        );
+
+
+      const pkr =
+        Number(
+          order.pkr ||
+          sar * rate
+        );
+
+
+      const sarReceived =
+        Number(
+          order.sar_received || 0
+        );
+
+
+      const pkrReceived =
+        Number(
+          order.pkr_received || 0
+        );
+
+
+      const due =
+        Math.max(
+          0,
+          pkr - pkrReceived
+        );
+
+
+      rows.push([
+
+        index + 1,
+
+        order.tracking_number || "",
+
+        order.name || "",
+
+        order.receiver || "",
+
+        sar,
+
+        rate,
+
+        pkr,
+
+        sarReceived,
+
+        pkrReceived,
+
+        due,
+
+        order.status || "",
+
+        order.created_at || ""
+
+      ]);
+
+    }
+  );
+
+
+  const csv =
+    "\uFEFF" +
+    rows
+      .map(
+        row =>
+          row
+            .map(csvEscape)
+            .join(",")
+      )
+      .join("\n");
+
+
+  const blob =
+    new Blob(
+      [csv],
+      {
+        type:
+          "text/csv;charset=utf-8;"
+      }
+    );
+
+
+  const url =
+    URL.createObjectURL(
+      blob
+    );
+
+
+  const a =
+    document.createElement(
+      "a"
+    );
+
+
+  a.href = url;
+
+
+  a.download =
+    "AbuSafwan-Exchange.csv";
+
+
+  document
+    .body
+    .appendChild(a);
+
+
+  a.click();
+
+
+  a.remove();
+
+
+  URL.revokeObjectURL(
+    url
+  );
+
+}
+
+
+/* ======================================================
+   PROFESSIONAL RECEIPT
+====================================================== */
+
+function printReceipt(id){
+
+  const order =
+    orders.find(
+      x =>
+        Number(x.id) ===
+        Number(id)
+    );
+
+
+  if(!order){
+
+    alert(
+      "آرڈر نہیں ملا۔"
+    );
+
+    return;
+  }
+
+
+  const sar =
+    Number(
+      order.sar || 0
+    );
+
+
+  const rate =
+    Number(
+      order.rate || 0
+    );
+
+
+  const pkr =
+    Number(
+      order.pkr ||
+      sar * rate
+    );
+
+
+  const sarReceived =
+    Number(
+      order.sar_received || 0
+    );
+
+
+  const pkrReceived =
+    Number(
+      order.pkr_received || 0
+    );
+
+
+  const due =
+    Math.max(
+      0,
+      pkr - pkrReceived
+    );
+
+
+  const status =
+    String(
+      order.status ||
+      "نیا"
+    ).trim();
+
+
+  const created =
+    formatDate(
+      order.created_at
+    );
+
+
+  const tracking =
+    order.tracking_number ||
+    "-";
+
+
+  const receipt = `
+
+<!DOCTYPE html>
+
+<html
+  lang="ur"
+  dir="rtl"
+>
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+  name="viewport"
+  content="width=device-width, initial-scale=1.0"
+>
+
+<title>
+ابو صفوان کرنسی ایکسچینج — رسید
+</title>
+
+
+<style>
+
+*{
+  box-sizing:border-box;
+}
+
+
+body{
+
+  margin:0;
+
+  padding:25px;
+
+  background:#eef2f5;
+
+  font-family:
+    "Noto Nastaliq Urdu",
+    "Noto Sans Arabic",
+    Arial,
+    sans-serif;
+
+  color:#172033;
+
+}
+
+
+.receipt{
+
+  width:100%;
+
+  max-width:680px;
+
+  margin:auto;
+
+  background:#fff;
+
+  padding:30px;
+
+  border:2px solid #061b35;
+
+  border-radius:16px;
+
+  box-shadow:
+    0 10px 35px
+    rgba(0,0,0,.12);
+
+}
+
+
+.header{
+
+  text-align:center;
+
+  border-bottom:
+    3px solid #f3b51b;
+
+  padding-bottom:16px;
+
+  margin-bottom:20px;
+
+}
+
+
+.logo{
+
+  width:65px;
+
+  height:65px;
+
+  margin:
+    0 auto 10px;
+
+  border-radius:50%;
+
+  background:#061b35;
+
+  color:#fff;
+
+  display:flex;
+
+  align-items:center;
+
+  justify-content:center;
+
+  border:
+    3px solid #f3b51b;
+
+  font-weight:bold;
+
+  font-size:22px;
+
+}
+
+
+.header h1{
+
+  margin:0;
+
+  color:#061b35;
+
+  font-size:28px;
+
+}
+
+
+.header p{
+
+  margin:5px 0 0;
+
+  color:#087f5b;
+
+  font-weight:bold;
+
+}
+
+
+.tracking{
+
+  direction:ltr;
+
+  text-align:center;
+
+  background:#e7f5ff;
+
+  color:#075985;
+
+  padding:10px;
+
+  border-radius:9px;
+
+  font-weight:bold;
+
+  font-size:17px;
+
+  margin-bottom:18px;
+
+}
+
+
+.info{
+
+  display:grid;
+
+  grid-template-columns:
+    1fr 1fr;
+
+  gap:10px;
+
+  margin-bottom:20px;
+
+}
+
+
+.infoBox{
+
+  border:
+    1px solid #dbe3ec;
+
+  padding:11px;
+
+  border-radius:9px;
+
+  background:#fafbfc;
+
+}
+
+
+.label{
+
+  color:#6b7280;
+
+  font-size:12px;
+
+}
+
+
+.value{
+
+  margin-top:3px;
+
+  font-weight:bold;
+
+  color:#061b35;
+
+}
+
+
+table{
+
+  width:100%;
+
+  border-collapse:collapse;
+
+  margin-top:10px;
+
+}
+
+
+th,
+td{
+
+  border:
+    1px solid #dbe3ec;
+
+  padding:11px;
+
+}
+
+
+th{
+
+  background:#061b35;
+
+  color:#fff;
+
+}
+
+
+td{
+
+  text-align:center;
+
+}
+
+
+.total{
+
+  color:#087f5b;
+
+  font-size:18px;
+
+  font-weight:bold;
+
+}
+
+
+.received{
+
+  color:#075985;
+
+  font-size:17px;
+
+  font-weight:bold;
+
+}
+
+
+.due{
+
+  color:#c92a2a;
+
+  font-size:19px;
+
+  font-weight:bold;
+
+}
+
+
+.status{
+
+  display:inline-block;
+
+  padding:5px 16px;
+
+  border-radius:20px;
+
+  background:#e6fcf5;
+
+  color:#087f5b;
+
+  font-weight:bold;
+
+}
+
+
+.footer{
+
+  text-align:center;
+
+  border-top:
+    2px solid #ddd;
+
+  margin-top:23px;
+
+  padding-top:15px;
+
+  color:#666;
+
+  font-size:13px;
+
+  line-height:1.9;
+
+}
+
+
+.printBtn{
+
+  display:block;
+
+  margin:
+    20px auto 0;
+
+  border:0;
+
+  background:#0878d1;
+
+  color:#fff;
+
+  padding:12px 28px;
+
+  border-radius:9px;
+
+  font-size:16px;
+
+  cursor:pointer;
+
+}
+
+
+@media(max-width:550px){
+
+  body{
+    padding:8px;
+  }
+
+  .receipt{
+    padding:18px;
+  }
+
+  .header h1{
+    font-size:23px;
+  }
+
+  .info{
+    grid-template-columns:1fr;
+  }
+
+}
+
+
+@media print{
+
+  body{
+
+    background:#fff;
+
+    padding:0;
+
+  }
+
+
+  .receipt{
+
+    max-width:none;
+
+    border:0;
+
+    box-shadow:none;
+
+  }
+
+
+  .printBtn{
+
+    display:none;
+
+  }
+
+}
+
+</style>
+
+</head>
+
+
+<body>
+
+
+<div class="receipt">
+
+
+  <div class="header">
+
+
+    <div class="logo">
+      AS
+    </div>
+
+
+    <h1>
+      ابو صفوان کرنسی ایکسچینج
+    </h1>
+
+
+    <p>
+      Professional Currency Exchange Receipt
+    </p>
+
+
+  </div>
+
+
+  <div class="tracking">
+
+    Tracking نمبر:
+    ${escapeHtml(
+      tracking
+    )}
+
+  </div>
+
+
+  <div class="info">
+
+
+    <div class="infoBox">
+
+      <div class="label">
+        کسٹمر کا نام
+      </div>
+
+      <div class="value">
+        ${escapeHtml(
+          order.name || "-"
+        )}
+      </div>
+
+    </div>
+
+
+    <div class="infoBox">
+
+      <div class="label">
+        وصول کنندہ
+      </div>
+
+      <div class="value">
+        ${escapeHtml(
+          order.receiver || "-"
+        )}
+      </div>
+
+    </div>
+
+
+    <div class="infoBox">
+
+      <div class="label">
+        تاریخ و وقت
+      </div>
+
+      <div class="value">
+        ${escapeHtml(
+          created
+        )}
+      </div>
+
+    </div>
+
+
+    <div class="infoBox">
+
+      <div class="label">
+        Status
+      </div>
+
+      <div class="value">
+
+        <span class="status">
+          ${escapeHtml(
+            status
+          )}
+        </span>
+
+      </div>
+
+    </div>
+
+
+  </div>
+
+
+  <table>
+
+
+    <tr>
+
+      <th>
+        تفصیل
+      </th>
+
+      <th>
+        رقم
+      </th>
+
+    </tr>
+
+
+    <tr>
+
+      <td>
+        سعودی ریال (SAR)
+      </td>
+
+      <td>
+        ${formatNumber(
+          sar
+        )}
+      </td>
+
+    </tr>
+
+
+    <tr>
+
+      <td>
+        SAR ریٹ
+      </td>
+
+      <td>
+        ${formatNumber(
+          rate
+        )}
+      </td>
+
+    </tr>
+
+
+    <tr>
+
+      <td>
+        کل پاکستانی روپے
+      </td>
+
+      <td class="total">
+        ${formatNumber(
+          pkr
+        )}
+        PKR
+      </td>
+
+    </tr>
+
+
+    <tr>
+
+      <td>
+        SAR وصول شدہ
+      </td>
+
+      <td>
+        ${formatNumber(
+          sarReceived
+        )}
+        SAR
+      </td>
+
+    </tr>
+
+
+    <tr>
+
+      <td>
+        PKR وصول شدہ
+      </td>
+
+      <td class="received">
+        ${formatNumber(
+          pkrReceived
+        )}
+        PKR
+      </td>
+
+    </tr>
+
+
+    <tr>
+
+      <td>
+        بقایا PKR
+      </td>
+
+      <td class="due">
+        ${formatNumber(
+          due
+        )}
+        PKR
+      </td>
+
+    </tr>
+
+
+  </table>
+
+
+  <div class="footer">
+
+    <strong>
+      ابو صفوان کرنسی ایکسچینج
+    </strong>
+
+    <br>
+
+    آپ کے اعتماد کے ساتھ
+
+    <br>
+
+    یہ رسید کمپیوٹرائزڈ ہے۔
+
+    <br>
+
+    شکریہ
+
+  </div>
+
+
+  <button
+    class="printBtn"
+    onclick="window.print()"
+  >
+    🖨️ رسید Print کریں
+  </button>
+
+
+</div>
+
+
+<script>
+
+window.onload = function(){
+
+  setTimeout(
+    function(){
+      window.print();
+    },
+    500
+  );
+
+};
+
+</script>
+
+
+</body>
+
+</html>
+
+`;
+
+
+  const win =
+    window.open(
+      "",
+      "_blank",
+      "width=750,height=900"
+    );
+
+
+  if(!win){
+
+    alert(
+      "Receipt کھولنے کے لیے Browser میں Pop-up Allow کریں۔"
+    );
+
+    return;
+  }
+
+
+  win.document.open();
+
+  win.document.write(
+    receipt
+  );
+
+  win.document.close();
+
+}
+
+
+/* ======================================================
+   HELPERS
+====================================================== */
+
+function csvEscape(value){
+
+  const text =
+    String(
+      value ?? ""
+    );
+
+
+  return `"${text.replace(
+    /"/g,
+    '""'
+  )}"`;
+
+}
+
+
+function formatNumber(value){
+
+  return Number(
+    value || 0
+  ).toLocaleString(
+    "en-US",
+    {
+      minimumFractionDigits:2,
+      maximumFractionDigits:2
+    }
+  );
+
+}
+
+
+function formatDate(value){
+
+  if(!value)
+    return "-";
+
+
+  try{
+
+    return new Date(
+      value
+    )
+    .toLocaleString(
+      "ur-PK",
+      {
+        year:"numeric",
+        month:"2-digit",
+        day:"2-digit",
+        hour:"2-digit",
+        minute:"2-digit"
+      }
+    );
+
+  }catch{
+
+    return value;
+
+  }
+
+}
+
+
+function escapeHtml(value){
+
+  return String(
+    value ?? ""
+  )
+  .replace(
+    /&/g,
+    "&amp;"
+  )
+  .replace(
+    /</g,
+    "&lt;"
+  )
+  .replace(
+    />/g,
+    "&gt;"
+  )
+  .replace(
+    /"/g,
+    "&quot;"
+  )
+  .replace(
+    /'/g,
+    "&#039;"
+  );
+
+}
+
+
+/* ======================================================
+   AUTH STATE
+====================================================== */
+
+supabaseClient
+  .auth
+  .onAuthStateChange(
+    async (
+      event,
+      session
+    ) => {
+
+      if(
+        event ===
+        "SIGNED_OUT"
+      ){
+
+        document
+          .getElementById(
+            "dashboard"
+          )
+          .classList
+          .add("hidden");
+
+
+        document
+          .getElementById(
+            "loginPage"
+          )
+          .classList
+          .remove("hidden");
+
+      }
+
+    }
+  );
+
+</script>
+
+</body>
+</html>
