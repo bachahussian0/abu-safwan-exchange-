@@ -1,0 +1,1104 @@
+<!DOCTYPE html>
+<html lang="ur" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>ابو صفوان کرنسی ایکسچینج</title>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+:root{
+ --navy:#062a52;
+ --navy2:#041d39;
+ --blue:#0b67d1;
+ --green:#10a85a;
+ --gold:#f5b82e;
+ --red:#dc3545;
+ --bg:#f3f7fb;
+ --text:#172033;
+ --border:#dce4ee;
+ --shadow:0 8px 30px rgba(0,35,75,.10);
+}
+
+*{box-sizing:border-box}
+
+body{
+ margin:0;
+ background:var(--bg);
+ color:var(--text);
+ font-family:Tahoma,Arial,sans-serif;
+}
+
+.header{
+ background:linear-gradient(135deg,var(--navy2),var(--navy));
+ color:white;
+ padding:15px 20px;
+ box-shadow:0 3px 15px rgba(0,0,0,.18);
+}
+
+.header-inner{
+ max-width:1150px;
+ margin:auto;
+ display:flex;
+ justify-content:space-between;
+ align-items:center;
+}
+
+.logo{
+ display:flex;
+ align-items:center;
+ gap:12px;
+}
+
+.logo-icon{
+ width:48px;
+ height:48px;
+ border-radius:14px;
+ background:linear-gradient(135deg,var(--green),var(--gold));
+ display:flex;
+ align-items:center;
+ justify-content:center;
+ font-size:25px;
+ font-weight:bold;
+}
+
+.logo h1{
+ margin:0;
+ font-size:21px;
+}
+
+.logo small{
+ color:#d8e5f2;
+}
+
+.live-time{
+ font-size:13px;
+}
+
+.hero{
+ background:linear-gradient(135deg,#062a52,#075f9e 55%,#087c42);
+ color:white;
+ text-align:center;
+ padding:55px 18px;
+}
+
+.hero h2{
+ margin:0 0 12px;
+ font-size:34px;
+}
+
+.hero p{
+ max-width:720px;
+ margin:0 auto 25px;
+ line-height:2;
+ color:#e9f4ff;
+}
+
+.rate-box{
+ display:inline-flex;
+ gap:14px;
+ align-items:center;
+ padding:14px 25px;
+ border-radius:16px;
+ background:rgba(255,255,255,.12);
+ border:1px solid rgba(255,255,255,.25);
+}
+
+.rate-number{
+ font-size:28px;
+ font-weight:bold;
+ color:#ffd86b;
+}
+
+.container{
+ width:min(1100px,94%);
+ margin:30px auto;
+}
+
+.grid{
+ display:grid;
+ grid-template-columns:1fr 1fr;
+ gap:22px;
+}
+
+.card{
+ background:white;
+ border:1px solid var(--border);
+ border-radius:18px;
+ padding:23px;
+ box-shadow:var(--shadow);
+}
+
+.card h3{
+ margin:0 0 18px;
+ color:var(--navy);
+}
+
+.form-group{
+ margin-bottom:15px;
+}
+
+label{
+ display:block;
+ margin-bottom:7px;
+ font-weight:bold;
+}
+
+.form-control{
+ width:100%;
+ padding:13px;
+ border:1px solid var(--border);
+ border-radius:11px;
+ font-size:16px;
+ outline:none;
+}
+
+.form-control:focus{
+ border-color:var(--blue);
+ box-shadow:0 0 0 3px rgba(11,103,209,.1);
+}
+
+.total-box{
+ background:#eef8f2;
+ border:1px solid #b7e3c8;
+ border-radius:13px;
+ padding:15px;
+ text-align:center;
+ margin:15px 0;
+}
+
+.total{
+ color:#087c42;
+ font-size:28px;
+ font-weight:bold;
+ margin-top:5px;
+}
+
+.btn{
+ border:0;
+ border-radius:11px;
+ padding:12px 18px;
+ cursor:pointer;
+ font-weight:bold;
+ font-size:15px;
+}
+
+.btn-primary{background:var(--blue);color:white}
+.btn-success{background:var(--green);color:white}
+.btn-dark{background:var(--navy);color:white}
+
+.btn-block{width:100%}
+
+.message{
+ padding:13px;
+ border-radius:11px;
+ margin-top:15px;
+}
+
+.success{
+ background:#e9f8ef;
+ color:#087c42;
+}
+
+.error{
+ background:#fff0f1;
+ color:#b42318;
+}
+
+.tracking-created{
+ margin-top:15px;
+ padding:18px;
+ background:linear-gradient(135deg,#062a52,#087c42);
+ color:white;
+ border-radius:15px;
+ text-align:center;
+}
+
+.tracking-id{
+ display:block;
+ margin:10px 0;
+ color:#ffd86b;
+ font-size:28px;
+ font-weight:bold;
+ direction:ltr;
+ letter-spacing:1px;
+}
+
+.tracking-input-row{
+ display:grid;
+ grid-template-columns:1fr auto;
+ gap:10px;
+}
+
+.tracking-input{
+ direction:ltr;
+ text-align:center;
+ font-weight:bold;
+ letter-spacing:1px;
+}
+
+.tracking-result{
+ margin-top:18px;
+}
+
+.track-status{
+ text-align:center;
+ padding:13px;
+ border-radius:12px;
+ margin-bottom:15px;
+ font-weight:bold;
+}
+
+.status-pending{
+ background:#fff7e6;
+ color:#b76b00;
+}
+
+.status-normal{
+ background:#eaf3ff;
+ color:#075aaa;
+}
+
+.status-complete{
+ background:#e9f8ef;
+ color:#087c42;
+}
+
+.status-cancel{
+ background:#fff0f1;
+ color:#b42318;
+}
+
+.info-grid{
+ display:grid;
+ grid-template-columns:1fr 1fr;
+ gap:10px;
+}
+
+.info{
+ background:#f7f9fc;
+ border:1px solid var(--border);
+ border-radius:10px;
+ padding:12px;
+}
+
+.info small{
+ display:block;
+ color:#667085;
+ margin-bottom:5px;
+}
+
+.info strong{
+ color:var(--navy);
+}
+
+.services{
+ display:grid;
+ grid-template-columns:repeat(4,1fr);
+ gap:15px;
+}
+
+.service{
+ background:white;
+ border:1px solid var(--border);
+ border-radius:15px;
+ padding:22px 10px;
+ text-align:center;
+ box-shadow:var(--shadow);
+}
+
+.service-icon{
+ font-size:30px;
+ margin-bottom:10px;
+}
+
+.service h4{
+ margin:0;
+ color:var(--navy);
+}
+
+.footer{
+ margin-top:50px;
+ padding:30px 15px;
+ text-align:center;
+ background:var(--navy2);
+ color:#d9e5f1;
+ line-height:2;
+}
+
+.footer strong{
+ color:#ffd86b;
+}
+
+.hidden{
+ display:none!important;
+}
+
+@media(max-width:800px){
+ .grid{grid-template-columns:1fr}
+ .services{grid-template-columns:1fr 1fr}
+ .live-time{display:none}
+ .hero h2{font-size:27px}
+}
+
+@media(max-width:550px){
+ .tracking-input-row{grid-template-columns:1fr}
+ .info-grid{grid-template-columns:1fr}
+ .services{grid-template-columns:1fr 1fr}
+}
+</style>
+</head>
+
+<body>
+
+<header class="header">
+
+ <div class="header-inner">
+
+  <div class="logo">
+
+   <div class="logo-icon">؋</div>
+
+   <div>
+    <h1>ابو صفوان کرنسی ایکسچینج</h1>
+    <small>محفوظ اور قابلِ اعتماد سروس</small>
+   </div>
+
+  </div>
+
+  <div id="liveTime" class="live-time"></div>
+
+ </div>
+
+</header>
+
+
+<section class="hero">
+
+ <h2>ابو صفوان کرنسی ایکسچینج</h2>
+
+ <p>
+ سعودی ریال اور پاکستانی روپے کی آسان، تیز اور
+ قابلِ اعتماد سروس۔ اپنا آرڈر جمع کریں اور
+ Tracking ID کے ذریعے آرڈر کی صورتحال معلوم کریں۔
+ </p>
+
+ <div class="rate-box">
+
+  <span>1 سعودی ریال</span>
+
+  <span id="heroRate" class="rate-number">
+   75.00
+  </span>
+
+  <span>PKR</span>
+
+ </div>
+
+</section>
+
+
+<main class="container">
+
+ <div class="grid">
+
+
+  <!-- ORDER -->
+
+  <section class="card">
+
+   <h3>📝 نیا آرڈر کریں</h3>
+
+   <form id="orderForm">
+
+    <!-- CUSTOMER NAME -->
+
+    <div class="form-group">
+
+     <label>اپنا نام</label>
+
+     <input
+      id="customerName"
+      class="form-control"
+      placeholder="اپنا مکمل نام"
+      required
+     >
+
+    </div>
+
+
+    <!-- MOBILE NUMBER -->
+
+    <div class="form-group">
+
+     <label>موبائل نمبر</label>
+
+     <input
+      id="customerMobile"
+      class="form-control"
+      type="tel"
+      inputmode="numeric"
+      autocomplete="tel"
+      placeholder="مثلاً 03001234567"
+      maxlength="15"
+      required
+     >
+
+    </div>
+
+
+    <!-- SAR -->
+
+    <div class="form-group">
+
+     <label>سعودی ریال کی رقم</label>
+
+     <input
+      id="sarAmount"
+      class="form-control"
+      type="number"
+      min="1"
+      step="0.01"
+      placeholder="مثلاً 1000"
+      required
+     >
+
+    </div>
+
+
+    <!-- RECEIVER -->
+
+    <div class="form-group">
+
+     <label>وصول کنندہ کا نام</label>
+
+     <input
+      id="receiverName"
+      class="form-control"
+      placeholder="وصول کنندہ کا نام"
+      required
+     >
+
+    </div>
+
+
+    <!-- TOTAL -->
+
+    <div class="total-box">
+
+     <div>
+      موجودہ ریٹ:
+      <b id="formRate">75.00</b> PKR
+     </div>
+
+     <div class="total">
+
+      <span id="totalPkr">0.00</span>
+
+      روپے
+
+     </div>
+
+    </div>
+
+
+    <button
+     id="orderButton"
+     class="btn btn-success btn-block"
+     type="submit"
+    >
+     آرڈر کریں
+    </button>
+
+   </form>
+
+
+   <div id="orderMessage"></div>
+
+
+   <div
+    id="trackingCreated"
+    class="tracking-created hidden"
+   >
+
+    <div>✅ آپ کا آرڈر جمع ہوگیا</div>
+
+    <div>آپ کا Tracking ID:</div>
+
+    <span
+     id="newTrackingNumber"
+     class="tracking-id"
+    ></span>
+
+    <div>
+     اس Tracking ID کو محفوظ رکھیں۔
+    </div>
+
+   </div>
+
+  </section>
+
+
+  <!-- TRACKING -->
+
+  <section class="card">
+
+   <h3>🔎 آرڈر ٹریک کریں</h3>
+
+   <p style="color:#667085">
+    اپنا Tracking ID درج کریں۔
+   </p>
+
+   <div class="tracking-input-row">
+
+    <input
+     id="trackingInput"
+     class="form-control tracking-input"
+     placeholder="AS-XXXXXXXX"
+     maxlength="20"
+    >
+
+    <button
+     id="trackButton"
+     class="btn btn-primary"
+     type="button"
+    >
+     ٹریک کریں
+    </button>
+
+   </div>
+
+   <div id="trackingMessage"></div>
+
+   <div
+    id="trackingResult"
+    class="tracking-result hidden"
+   ></div>
+
+  </section>
+
+ </div>
+
+
+ <h2
+  style="
+   text-align:center;
+   color:#062a52;
+   margin:40px 0 20px
+  "
+ >
+  ہماری سہولیات
+ </h2>
+
+
+ <div class="services">
+
+  <div class="service">
+   <div class="service-icon">💱</div>
+   <h4>کرنسی ایکسچینج</h4>
+  </div>
+
+  <div class="service">
+   <div class="service-icon">🇸🇦</div>
+   <h4>سعودی ریال</h4>
+  </div>
+
+  <div class="service">
+   <div class="service-icon">💵</div>
+   <h4>پاکستانی روپے</h4>
+  </div>
+
+  <div class="service">
+   <div class="service-icon">📦</div>
+   <h4>آرڈر ٹریکنگ</h4>
+  </div>
+
+ </div>
+
+</main>
+
+
+<footer class="footer">
+
+ <strong>ابو صفوان کرنسی ایکسچینج</strong>
+
+ <br>
+
+ محفوظ، آسان اور قابلِ اعتماد سروس
+
+ <br>
+
+ © <span id="year"></span>
+ Abu Safwan Currency Exchange
+
+</footer>
+
+
+<script>
+
+const SUPABASE_URL =
+"https://bvypnhintuiejqpkpjox.supabase.co";
+
+const SUPABASE_KEY =
+"sb_publishable_T_rZSYLkDynbSXi1JflY0Q_IPFcyfZa";
+
+const supabaseClient =
+window.supabase.createClient(
+ SUPABASE_URL,
+ SUPABASE_KEY
+);
+
+let currentRate=75;
+
+
+/* TIME */
+
+function updateTime(){
+
+ document.getElementById("liveTime")
+ .textContent =
+ new Date().toLocaleString(
+  "ur-PK",
+  {
+   dateStyle:"full",
+   timeStyle:"medium"
+  }
+ );
+
+}
+
+setInterval(updateTime,1000);
+updateTime();
+
+document.getElementById("year")
+.textContent =
+new Date().getFullYear();
+
+
+/* RATE */
+
+async function loadRate(){
+
+ const {data,error} =
+ await supabaseClient
+ .from("settings")
+ .select("rate")
+ .limit(1)
+ .single();
+
+ if(error){
+  console.error(error);
+  return;
+ }
+
+ currentRate =
+ Number(data.rate || 75);
+
+ document.getElementById("heroRate")
+ .textContent =
+ currentRate.toFixed(2);
+
+ document.getElementById("formRate")
+ .textContent =
+ currentRate.toFixed(2);
+
+ calculateTotal();
+
+}
+
+
+/* TOTAL */
+
+function calculateTotal(){
+
+ const sar =
+ Number(
+  document.getElementById("sarAmount")
+  .value
+ ) || 0;
+
+ document.getElementById("totalPkr")
+ .textContent =
+ (sar*currentRate)
+ .toLocaleString(
+  "en-US",
+  {
+   minimumFractionDigits:2,
+   maximumFractionDigits:2
+  }
+ );
+
+}
+
+document.getElementById("sarAmount")
+.addEventListener(
+ "input",
+ calculateTotal
+);
+
+
+/* TRACKING ID */
+
+function generateTrackingId(){
+
+ return "AS-" +
+ crypto.randomUUID()
+ .replaceAll("-","")
+ .substring(0,8)
+ .toUpperCase();
+
+}
+
+
+/* MOBILE VALIDATION */
+
+function normalizeMobile(value){
+
+ return value
+  .replace(/[^\d+]/g,"")
+  .trim();
+
+}
+
+function isValidMobile(value){
+
+ const digits =
+  value.replace(/\D/g,"");
+
+ return (
+  digits.length >= 10 &&
+  digits.length <= 15
+ );
+
+}
+
+
+/* ORDER */
+
+document.getElementById("orderForm")
+.addEventListener(
+ "submit",
+ async function(e){
+
+ e.preventDefault();
+
+ const name =
+ document.getElementById("customerName")
+ .value.trim();
+
+ const mobile =
+ normalizeMobile(
+  document.getElementById("customerMobile")
+  .value
+ );
+
+ const receiver =
+ document.getElementById("receiverName")
+ .value.trim();
+
+ const sar =
+ Number(
+  document.getElementById("sarAmount")
+  .value
+ );
+
+
+ /* NAME */
+
+ if(name.length<2){
+
+  document.getElementById("orderMessage")
+  .innerHTML=
+  '<div class="message error">براہِ کرم درست نام درج کریں۔</div>';
+
+  return;
+
+ }
+
+
+ /* MOBILE */
+
+ if(!isValidMobile(mobile)){
+
+  document.getElementById("orderMessage")
+  .innerHTML=
+  '<div class="message error">براہِ کرم درست موبائل نمبر درج کریں۔</div>';
+
+  return;
+
+ }
+
+
+ /* RECEIVER */
+
+ if(receiver.length<2){
+
+  document.getElementById("orderMessage")
+  .innerHTML=
+  '<div class="message error">براہِ کرم وصول کنندہ کا نام درج کریں۔</div>';
+
+  return;
+
+ }
+
+
+ /* SAR */
+
+ if(!sar || sar<=0){
+
+  document.getElementById("orderMessage")
+  .innerHTML=
+  '<div class="message error">براہِ کرم درست رقم درج کریں۔</div>';
+
+  return;
+
+ }
+
+
+ const button =
+ document.getElementById("orderButton");
+
+ button.disabled=true;
+ button.textContent="محفوظ ہو رہا ہے...";
+
+
+ let result;
+ let tracking;
+
+
+ /* SAVE ORDER */
+
+ for(let i=0;i<5;i++){
+
+  tracking =
+  generateTrackingId();
+
+  result =
+  await supabaseClient
+  .from("pending_orders")
+  .insert({
+   name:name,
+   mobile:mobile,
+   receiver:receiver,
+   sar:sar,
+   rate:currentRate,
+   tracking_number:tracking
+  });
+
+  if(!result.error) break;
+
+  if(result.error.code!=="23505")
+   break;
+
+ }
+
+
+ button.disabled=false;
+ button.textContent="آرڈر کریں";
+
+
+ /* ERROR */
+
+ if(result.error){
+
+  console.error(result.error);
+
+  document.getElementById("orderMessage")
+  .innerHTML=
+  '<div class="message error">آرڈر محفوظ نہیں ہوسکا۔ دوبارہ کوشش کریں۔</div>';
+
+  return;
+
+ }
+
+
+ /* SUCCESS */
+
+ document.getElementById("orderForm")
+ .reset();
+
+ calculateTotal();
+
+ document.getElementById("orderMessage")
+ .innerHTML=
+ '<div class="message success">آپ کا آرڈر کامیابی سے جمع ہوگیا۔</div>';
+
+ document.getElementById("newTrackingNumber")
+ .textContent=tracking;
+
+ document.getElementById("trackingCreated")
+ .classList.remove("hidden");
+
+ document.getElementById("trackingInput")
+ .value=tracking;
+
+ }
+);
+
+
+/* TRACK ORDER */
+
+async function trackOrder(){
+
+ const tracking =
+ document.getElementById("trackingInput")
+ .value
+ .trim()
+ .toUpperCase();
+
+ document.getElementById("trackingResult")
+ .classList.add("hidden");
+
+ document.getElementById("trackingMessage")
+ .innerHTML="";
+
+
+ if(!tracking){
+
+  document.getElementById("trackingMessage")
+  .innerHTML=
+  '<div class="message error">Tracking ID درج کریں۔</div>';
+
+  return;
+
+ }
+
+
+ const button =
+ document.getElementById("trackButton");
+
+ button.disabled=true;
+ button.textContent="تلاش جاری ہے...";
+
+
+ const {data,error} =
+ await supabaseClient.rpc(
+  "track_order",
+  {
+   p_tracking_number:tracking
+  }
+ );
+
+
+ button.disabled=false;
+ button.textContent="ٹریک کریں";
+
+
+ if(error){
+
+  console.error(error);
+
+  document.getElementById("trackingMessage")
+  .innerHTML=
+  '<div class="message error">Tracking ID تلاش نہیں ہوسکی۔</div>';
+
+  return;
+
+ }
+
+
+ if(!data || !data.length){
+
+  document.getElementById("trackingMessage")
+  .innerHTML=
+  '<div class="message error">یہ Tracking ID موجود نہیں ہے۔</div>';
+
+  return;
+
+ }
+
+
+ const o=data[0];
+
+ let statusClass="status-normal";
+
+ if(o.status==="زیرِ اجازت")
+  statusClass="status-pending";
+
+ if(o.status==="مکمل" || o.status==="قبول")
+  statusClass="status-complete";
+
+ if(o.status==="منسوخ")
+  statusClass="status-cancel";
+
+
+ document.getElementById("trackingResult")
+ .innerHTML=`
+
+  <div class="track-status ${statusClass}">
+   موجودہ صورتحال:
+   <b>${o.status}</b>
+  </div>
+
+  <div class="info-grid">
+
+   <div class="info">
+    <small>Tracking ID</small>
+    <strong dir="ltr">
+     ${o.tracking_number}
+    </strong>
+   </div>
+
+   <div class="info">
+    <small>نام</small>
+    <strong>${o.name}</strong>
+   </div>
+
+   <div class="info">
+    <small>وصول کنندہ</small>
+    <strong>${o.receiver}</strong>
+   </div>
+
+   <div class="info">
+    <small>سعودی ریال</small>
+    <strong>${Number(o.sar).toFixed(2)} SAR</strong>
+   </div>
+
+   <div class="info">
+    <small>ریٹ</small>
+    <strong>${Number(o.rate).toFixed(2)} PKR</strong>
+   </div>
+
+   <div class="info">
+    <small>کل پاکستانی روپے</small>
+    <strong>${Number(o.pkr).toLocaleString()} PKR</strong>
+   </div>
+
+  </div>
+
+ `;
+
+ document.getElementById("trackingResult")
+ .classList.remove("hidden");
+
+}
+
+
+document.getElementById("trackButton")
+.addEventListener(
+ "click",
+ trackOrder
+);
+
+
+document.getElementById("trackingInput")
+.addEventListener(
+ "keydown",
+ function(e){
+
+  if(e.key==="Enter")
+   trackOrder();
+
+ }
+);
+
+
+/* START */
+
+loadRate();
+
+</script>
+
+</body>
+</html>
